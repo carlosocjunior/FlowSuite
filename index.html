@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowSuite - Painel de Ferramentas</title>
+
+    <!-- Funções comuns entre as ferramentas do FlowSuite (escapeHtml, tradução,
+         etc.) — precisa vir antes do script principal. Como este é o próprio
+         repositório que hospeda o shared.js, usa caminho relativo. -->
+    <script src="shared.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #e8e8e8;
+            padding: 30px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .icone-admin {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 22px;
+            color: #bbb;
+            text-decoration: none;
+            transition: 0.2s;
+            padding: 4px 8px;
+            border-radius: 6px;
+            z-index: 9999;
+        }
+        .icone-admin:hover {
+            color: #555;
+            background: rgba(0,0,0,0.05);
+        }
+        .seletor-idioma-btn.ativo {
+            background: #007bff !important;
+            color: white !important;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 45px;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        .header .subtitulo {
+            color: #666;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .logo-block {
+            font-family: 'Poppins', Arial, sans-serif;
+            line-height: 1.1;
+            text-align: center;
+            padding: 4px 16px 4px 0;
+            border-right: 2px solid #007bff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .logo-block .logo-top {
+            font-size: 35px;
+            font-weight: 900;
+            color: #007bff;
+            letter-spacing: 1px;
+        }
+        .logo-block .logo-mid {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 2px;
+        }
+        .logo-block .logo-bot {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        /* WRAPPER que contém a imagem lateral + os cards */
+        .secao-cards-wrapper {
+            position: relative;
+            margin: 50px 0;
+            display: flow-root;
+        }
+
+        /* IMAGEM DE FUNDO - TECNOLOGIA (lateral, suave, com transparência)
+           Começa um pouco acima do primeiro card e termina um pouco abaixo do último */
+        .bg-lateral {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            width: 55%;
+            height: calc(100% + 60px);
+            border-radius: 24px;
+            background-image:
+                linear-gradient(to right, #e8e8e8 0%, rgba(232,232,232,0.6) 15%, rgba(232,232,232,0.15) 45%, rgba(232,232,232,0) 100%),
+                url('bg-dashboard.webp');
+            background-size: cover;
+            background-position: right center;
+            background-repeat: no-repeat;
+            opacity: 0.18;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .secao-cards-horizontais {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+            margin-top: 10mm;
+        }
+
+        .card-horizontal + .card-horizontal {
+            margin-top: 38px;
+        }
+
+        .card-horizontal {
+            display: flex;
+            align-items: center;
+            border-radius: 22px;
+            padding: 14px 30px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.20);
+            width: 75%;
+            margin: 0;
+            min-height: 100px;
+            gap: 28px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 3px solid rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-horizontal::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            pointer-events: none;
+        }
+        .card-horizontal::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            pointer-events: none;
+        }
+        .card-horizontal:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.30);
+        }
+
+        /* Transparência gradual esquerda (mais opaco) -> direita (mais transparente),
+           deixando a imagem lateral aparecer sutilmente por baixo do card */
+        .card-horizontal-1 {
+            background: linear-gradient(to right, rgba(123,165,139,0.96) 0%, rgba(123,165,139,0.78) 55%, rgba(123,165,139,0.55) 100%);
+            border-color: rgba(255,255,255,0.25);
+        }
+        .card-horizontal-2 {
+            background: linear-gradient(to right, rgba(247,148,29,0.96) 0%, rgba(247,148,29,0.78) 55%, rgba(247,148,29,0.55) 100%);
+            border-color: rgba(255,255,255,0.25);
+        }
+        .card-horizontal-3 {
+            background: linear-gradient(to right, rgba(63,124,173,0.96) 0%, rgba(63,124,173,0.78) 55%, rgba(63,124,173,0.55) 100%);
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        .card-horizontal-icone {
+            flex: 0 0 18%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-horizontal-icone svg,
+        .card-horizontal-icone img {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            border-radius: 14px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.18));
+        }
+
+        .card-horizontal-texto {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-horizontal-texto h2 {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.10);
+        }
+
+        .card-horizontal-texto p {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5;
+            margin: 0;
+            opacity: 0.95;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card-horizontal-texto .acessar-modulo {
+            margin-top: 10px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.85;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 4px;
+            width: fit-content;
+        }
+        .card-horizontal-texto .acessar-modulo:hover {
+            opacity: 1;
+            border-bottom-color: rgba(255,255,255,0.9);
+            transform: translateX(4px);
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .bg-lateral {
+                display: none;
+            }
+            .card-horizontal {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 24px;
+                gap: 20px;
+                width: 100%;
+                min-height: auto;
+            }
+            .card-horizontal-icone {
+                flex: 0 0 auto;
+            }
+            .card-horizontal-icone svg {
+                width: 80px;
+                height: 80px;
+            }
+            .card-horizontal-texto h2 {
+                font-size: 26px;
+            }
+            .card-horizontal-texto p {
+                font-size: 15px;
+            }
+            .card-horizontal-texto .acessar-modulo {
+                margin: 0 auto;
+            }
+            .header {
+                flex-wrap: wrap;
+            }
+            .logo-block {
+                border-right: none;
+                padding-right: 0;
+            }
+            #areaUsuarioFlowsuite {
+                top: 56px;
+                right: 10px;
+            }
+            #seletorIdiomaFlowsuite {
+                top: 100px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="admin.html" class="icone-admin" title="Administração" id="iconeAdmin"></a>
+        <div id="seletorIdiomaFlowsuite" style="position:fixed;top:60px;right:20px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <button class="seletor-idioma-btn" data-lang="pt" onclick="mudarIdioma('pt')" style="border:none;background:#f1f3f5;padding:6px 10px;border-radius:14px;font-size:12px;font-weight:bold;cursor:pointer;">PT</button>
+            <button class="seletor-idioma-btn" data-lang="en" onclick="mudarIdioma('en')" style="border:none;background:#f1f3f5;padding:6px 10px;border-radius:14px;font-size:12px;font-weight:bold;cursor:pointer;">EN</button>
+            <button class="seletor-idioma-btn" data-lang="es" onclick="mudarIdioma('es')" style="border:none;background:#f1f3f5;padding:6px 10px;border-radius:14px;font-size:12px;font-weight:bold;cursor:pointer;">ES</button>
+        </div>
+        <div id="areaUsuarioFlowsuite" style="position:fixed;top:16px;right:60px;z-index:9999;"></div>
+
+        <div class="header">
+            <div class="logo-block">
+                <div class="logo-top">SYNVORA</div>
+                <div class="logo-mid">LABS</div>
+                <div class="logo-bot">SMARTOPERATIONSPLATFORM</div>
+            </div>
+            <div>
+                <h1>FlowSuite</h1>
+                <div class="subtitulo" data-i18n="subtitulo">Painel de Ferramentas</div>
+            </div>
+        </div>
+        <div class="secao-cards-wrapper">
+            <div class="bg-lateral"></div>
+            <div class="secao-cards-horizontais">
+
+            <!-- CARD 1 - ReportFlow -->
+            <div class="card-horizontal card-horizontal-3">
+                <div class="card-horizontal-icone">
+                    <img src="icone-report.jpeg" alt="Ícone ReportFlow - prancheta com gráfico">
+                </div>
+                <div class="card-horizontal-texto">
+                    <h2>ReportFlow</h2>
+                    <p data-i18n="reportflowDesc">Geração de relatórios técnicos detalhados com fotos, descrições e etapas de reparo, agilizando a documentação de serviços.</p>
+                    <a href="https://carlosocjunior.github.io/ReportFlow/" target="_blank" class="acessar-modulo" data-i18n="acessarModulo">Acessar o módulo →</a>
+                </div>
+            </div>
+
+            <!-- CARD 2 - CalibrationFlow -->
+            <div class="card-horizontal card-horizontal-1">
+                <div class="card-horizontal-icone">
+                    <img src="icone-calibration.jpeg" alt="Ícone CalibrationFlow - técnico com equipamentos">
+                </div>
+                <div class="card-horizontal-texto">
+                    <h2>CalibrationFlow</h2>
+                    <p data-i18n="calibrationflowDesc">Calibragem precisa e monitoramento de equipamentos essenciais para garantir a confiabilidade e conformidade com padrões estabelecidos.</p>
+                    <a href="https://carlosocjunior.github.io/CalibrationFlow/" target="_blank" class="acessar-modulo" data-i18n="acessarModulo">Acessar o módulo →</a>
+                </div>
+            </div>
+
+            <!-- CARD 3 - TrainingFlow -->
+            <div class="card-horizontal card-horizontal-2">
+                <div class="card-horizontal-icone">
+                    <img src="icone-training.jpeg" alt="Ícone TrainingFlow - sala de treinamento">
+                </div>
+                <div class="card-horizontal-texto">
+                    <h2>TrainingFlow</h2>
+                    <p data-i18n="trainingflowDesc">Acompanhamento completo de treinamentos da equipe, com registros de progresso, certificações e evolução de competências.</p>
+                    <a href="https://carlosocjunior.github.io/TrainingFlow/" target="_blank" class="acessar-modulo" data-i18n="acessarModulo">Acessar o módulo →</a>
+                </div>
+            </div>
+
+            </div>
+        </div>
+
+        <div class="footer" data-i18n="footer">FlowSuite - Sistema Integrado de Ferramentas</div>
+    </div>
+<script>
+// ==========================================
+// CORE - FlowSuite Authentication System (API)
+// ==========================================
+
+// CONFIGURAÇÃO DA API
+const API_URL = 'https://flowsuite-plus-api.flowsuite-plus.workers.dev';
+
+// ==========================================
+// IDIOMA / TRADUÇÃO
+// ==========================================
+let idiomaAtual = localStorage.getItem('flowsuite_idioma') || 'pt';
+
+const I18N = {
+    pt: {
+        subtitulo: 'Painel de Ferramentas',
+        footer: 'FlowSuite - Sistema Integrado de Ferramentas',
+        reportflowDesc: 'Geração de relatórios técnicos detalhados com fotos, descrições e etapas de reparo, agilizando a documentação de serviços.',
+        calibrationflowDesc: 'Calibragem precisa e monitoramento de equipamentos essenciais para garantir a confiabilidade e conformidade com padrões estabelecidos.',
+        trainingflowDesc: 'Acompanhamento completo de treinamentos da equipe, com registros de progresso, certificações e evolução de competências.',
+        acessarModulo: 'Acessar o módulo →',
+        loginBtn: 'Login',
+        verComoPlaceholder: 'Ver como...',
+        sairBtn: 'Sair',
+        loginTitulo: 'Entre com seu usuário e senha',
+        acessoModuloSolicitado: 'Acesso ao módulo solicitado',
+        usuarioLabel: 'Usuário',
+        usuarioPlaceholder: 'Digite seu usuário',
+        senhaLabel: 'Senha',
+        senhaPlaceholder: 'Digite sua senha',
+        entrarBtn: 'Entrar',
+        cancelarBtn: 'Cancelar',
+        preencherCampos: 'Preencha usuário e senha!',
+        semPermissaoModulo: 'Você não tem permissão para acessar o módulo "{modulo}".',
+        semPermissaoModuloGenerico: 'Você não tem permissão para acessar este módulo.',
+        facaLoginModulo: 'Faça login na página inicial para acessar este módulo.',
+        sessaoExpirada: 'Sua sessão expirou por inatividade. Faça login novamente.',
+        logoutSucesso: 'Logout realizado com sucesso!',
+        credenciais_invalidas: 'Usuário ou senha inválidos',
+        sessao_encerrada: 'Sua sessão foi encerrada (login feito em outro lugar, ou logout). Faça login novamente.',
+        muitas_tentativas: 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.',
+        erro_interno: 'Erro interno no servidor. Tente novamente em instantes.',
+        token_nao_fornecido: 'Token não fornecido',
+        usuario_nao_encontrado: 'Usuário não encontrado',
+        token_invalido: 'Token inválido',
+        acesso_negado_admin: 'Acesso negado - apenas admin',
+        dados_incompletos: 'Dados incompletos',
+        usuario_ja_existe: 'Usuário já existe',
+        nao_pode_excluir_admin: 'Não pode excluir administrador',
+        acao_invalida: 'Ação inválida',
+    },
+    en: {
+        subtitulo: 'Tools Dashboard',
+        footer: 'FlowSuite - Integrated Tools System',
+        reportflowDesc: 'Generation of detailed technical reports with photos, descriptions and repair steps, speeding up service documentation.',
+        calibrationflowDesc: 'Precise calibration and monitoring of essential equipment to ensure reliability and compliance with established standards.',
+        trainingflowDesc: 'Complete tracking of team training, with progress records, certifications and skills evolution.',
+        acessarModulo: 'Open module →',
+        loginBtn: 'Login',
+        verComoPlaceholder: 'View as...',
+        sairBtn: 'Logout',
+        loginTitulo: 'Sign in with your username and password',
+        acessoModuloSolicitado: 'Access to requested module',
+        usuarioLabel: 'Username',
+        usuarioPlaceholder: 'Enter your username',
+        senhaLabel: 'Password',
+        senhaPlaceholder: 'Enter your password',
+        entrarBtn: 'Sign in',
+        cancelarBtn: 'Cancel',
+        preencherCampos: 'Fill in username and password!',
+        semPermissaoModulo: 'You do not have permission to access the "{modulo}" module.',
+        semPermissaoModuloGenerico: 'You do not have permission to access this module.',
+        facaLoginModulo: 'Sign in on the home page to access this module.',
+        sessaoExpirada: 'Your session expired due to inactivity. Please sign in again.',
+        logoutSucesso: 'Logout successful!',
+        credenciais_invalidas: 'Invalid username or password',
+        sessao_encerrada: 'Your session was closed (signed in elsewhere, or logged out). Please sign in again.',
+        muitas_tentativas: 'Too many login attempts. Wait a few minutes and try again.',
+        erro_interno: 'Internal server error. Please try again shortly.',
+        token_nao_fornecido: 'Token not provided',
+        usuario_nao_encontrado: 'User not found',
+        token_invalido: 'Invalid token',
+        acesso_negado_admin: 'Access denied - admin only',
+        dados_incompletos: 'Incomplete data',
+        usuario_ja_existe: 'User already exists',
+        nao_pode_excluir_admin: 'Cannot delete administrator',
+        acao_invalida: 'Invalid action',
+    },
+    es: {
+        subtitulo: 'Panel de Herramientas',
+        footer: 'FlowSuite - Sistema Integrado de Herramientas',
+        reportflowDesc: 'Generación de informes técnicos detallados con fotos, descripciones y etapas de reparación, agilizando la documentación de servicios.',
+        calibrationflowDesc: 'Calibración precisa y monitoreo de equipos esenciales para garantizar la confiabilidad y el cumplimiento de los estándares establecidos.',
+        trainingflowDesc: 'Seguimiento completo de las capacitaciones del equipo, con registros de progreso, certificaciones y evolución de competencias.',
+        acessarModulo: 'Acceder al módulo →',
+        loginBtn: 'Iniciar sesión',
+        verComoPlaceholder: 'Ver como...',
+        sairBtn: 'Salir',
+        loginTitulo: 'Ingrese su usuario y contraseña',
+        acessoModuloSolicitado: 'Acceso al módulo solicitado',
+        usuarioLabel: 'Usuario',
+        usuarioPlaceholder: 'Ingrese su usuario',
+        senhaLabel: 'Contraseña',
+        senhaPlaceholder: 'Ingrese su contraseña',
+        entrarBtn: 'Entrar',
+        cancelarBtn: 'Cancelar',
+        preencherCampos: '¡Complete usuario y contraseña!',
+        semPermissaoModulo: 'No tiene permiso para acceder al módulo "{modulo}".',
+        semPermissaoModuloGenerico: 'No tiene permiso para acceder a este módulo.',
+        facaLoginModulo: 'Inicie sesión en la página principal para acceder a este módulo.',
+        sessaoExpirada: 'Su sesión expiró por inactividad. Inicie sesión nuevamente.',
+        logoutSucesso: '¡Sesión cerrada con éxito!',
+        credenciais_invalidas: 'Usuario o contraseña inválidos',
+        sessao_encerrada: 'Su sesión fue cerrada (inició sesión en otro lugar, o cerró sesión). Inicie sesión nuevamente.',
+        muitas_tentativas: 'Demasiados intentos de inicio de sesión. Espere unos minutos e intente de nuevo.',
+        erro_interno: 'Error interno del servidor. Inténtelo de nuevo en unos instantes.',
+        token_nao_fornecido: 'Token no proporcionado',
+        usuario_nao_encontrado: 'Usuario no encontrado',
+        token_invalido: 'Token inválido',
+        acesso_negado_admin: 'Acceso denegado - solo admin',
+        dados_incompletos: 'Datos incompletos',
+        usuario_ja_existe: 'El usuario ya existe',
+        nao_pode_excluir_admin: 'No se puede eliminar al administrador',
+        acao_invalida: 'Acción inválida',
+    }
+};
+
+// t(), tf(), escapeHtml() e aplicarIdioma() agora vêm do shared.js
+// (usam I18N e idiomaAtual daqui)
+
+function mudarIdioma(lang) {
+    idiomaAtual = lang;
+    localStorage.setItem('flowsuite_idioma', lang);
+    aplicarIdioma();
+    atualizarBarraUsuario();
+}
+
+// ===== FUNÇÕES DE COMUNICAÇÃO COM API =====
+async function chamarAPI(acao, dados = {}) {
+    const token = sessionStorage.getItem('flowsuite_token');
+    
+    const payload = {
+        acao: acao,
+        ...dados
+    };
+    
+    if (token) {
+        payload.token = token;
+    }
+    
+console.log('Chamando API:', API_URL);
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const text = await response.text();
+        return JSON.parse(text);
+    } catch (error) {
+        console.error('Erro na API:', error);
+        return { erro: 'Falha na comunicação com o servidor' };
+    }
+}
+
+// ===== OBTER USUÁRIOS DA API =====
+async function getUsuarios() {
+    const token = sessionStorage.getItem('flowsuite_token');
+    if (!token) return [];
+    
+    const resultado = await chamarAPI('listar', { token });
+    if (resultado.erro) {
+        console.error('Erro ao listar usuários:', resultado.erro);
+        return [];
+    }
+    return resultado;
+}
+
+let sessaoAtual = null;
+
+const TEMPO_LIMITE_INATIVIDADE_MIN = 15;
+const TEMPO_LIMITE_INATIVIDADE_MS = TEMPO_LIMITE_INATIVIDADE_MIN * 60 * 1000;
+let timerInatividade = null;
+
+function resetarTimerInatividade() {
+    if (timerInatividade) clearTimeout(timerInatividade);
+    if (sessaoAtual) {
+        timerInatividade = setTimeout(fazerLogoutPorInatividade, TEMPO_LIMITE_INATIVIDADE_MS);
+    }
+}
+
+async function fazerLogoutPorInatividade() {
+    if (!sessaoAtual) return;
+    const token = sessionStorage.getItem('flowsuite_token');
+    sessaoAtual = null;
+    sessionStorage.removeItem('flowsuite_sessao');
+    sessionStorage.removeItem('flowsuite_token');
+
+    if (token) {
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ acao: 'logout', token: token })
+            });
+        } catch (e) {
+            // mesmo se falhar o aviso ao servidor, a sessão local já foi limpa
+        }
+    }
+
+    alert(t('sessaoExpirada'));
+    location.reload();
+}
+
+['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evento => {
+    document.addEventListener(evento, resetarTimerInatividade, { passive: true });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sessaoSalva = sessionStorage.getItem('flowsuite_sessao');
+    const tokenSalvo = sessionStorage.getItem('flowsuite_token');
+    
+    if (sessaoSalva && tokenSalvo) {
+        try {
+            sessaoAtual = JSON.parse(sessaoSalva);
+            // Verifica se o token ainda é válido
+            verificarTokenValido(tokenSalvo);
+        } catch(e) {
+            sessaoAtual = null;
+            sessionStorage.removeItem('flowsuite_token');
+            sessionStorage.removeItem('flowsuite_sessao');
+        }
+    }
+    resetarTimerInatividade();
+    aplicarProtecaoCardsHorizontais();
+    aplicarIdioma();
+    atualizarBarraUsuario();
+});
+
+// ===== VERIFICAR TOKEN VÁLIDO =====
+async function verificarTokenValido(token) {
+    const resultado = await chamarAPI('verificar', { token });
+    if (!resultado.valido) {
+        sessionStorage.removeItem('flowsuite_token');
+        sessionStorage.removeItem('flowsuite_sessao');
+        sessaoAtual = null;
+        console.log('Sessão expirada');
+    } else {
+        // Atualiza dados do usuário
+        sessaoAtual = {
+            id: resultado.usuario.id,
+            nome: resultado.usuario.nome,
+            modulos: resultado.usuario.modulos,
+            permissao: resultado.usuario.permissao
+        };
+        sessionStorage.setItem('flowsuite_sessao', JSON.stringify(sessaoAtual));
+    }
+    atualizarBarraUsuario();
+}
+
+async function fazerLogin(usuario, senha) {
+    const resultado = await chamarAPI('login', { nome: usuario, senha: senha });
+    
+    if (!resultado.sucesso) {
+        alert(t(resultado.erro || 'credenciais_invalidas'));
+        return false;
+    }
+    
+    sessaoAtual = {
+        id: resultado.usuario.id,
+        nome: resultado.usuario.nome,
+        modulos: resultado.usuario.modulos,
+        permissao: resultado.usuario.permissao
+    };
+    
+    sessionStorage.setItem('flowsuite_token', resultado.token);
+    sessionStorage.setItem('flowsuite_sessao', JSON.stringify(sessaoAtual));
+    resetarTimerInatividade();
+    return true;
+}
+
+async function fazerLogout() {
+    const token = sessionStorage.getItem('flowsuite_token');
+    if (timerInatividade) clearTimeout(timerInatividade);
+    sessaoAtual = null;
+    sessionStorage.removeItem('flowsuite_token');
+    sessionStorage.removeItem('flowsuite_sessao');
+
+    if (token) {
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ acao: 'logout', token: token })
+            });
+        } catch (e) {
+            // mesmo se falhar o aviso ao servidor, a sessão local já foi limpa
+        }
+    }
+
+    alert(t('logoutSucesso'));
+    location.reload();
+}
+
+function temAcesso(modulo) {
+    if (!sessaoAtual) return false;
+    return sessaoAtual.modulos.includes(modulo);
+}
+
+// ===== NOVAS FUNÇÕES DE PERMISSÃO =====
+function getNivelUsuario() {
+    if (!sessaoAtual) return 'leitura';
+    return sessaoAtual.permissao || 'leitura';
+}
+
+function isAdmin() {
+    const nivel = getNivelUsuario();
+    return nivel === 'admin' || nivel === 'dev' || nivel === 'master';
+}
+
+function isMaster() {
+    return getNivelUsuario() === 'master';
+}
+
+function isDev() {
+    return getNivelUsuario() === 'dev';
+}
+
+function isEditor() {
+    return getNivelUsuario() === 'editor';
+}
+
+function isLeitura() {
+    return getNivelUsuario() === 'leitura';
+}
+
+function podeEditar() {
+    const nivel = getNivelUsuario();
+    return nivel === 'admin' || nivel === 'editor';
+}
+
+function podeExcluir() {
+    return isAdmin();
+}
+
+function podeGerenciarUsuarios() {
+    return isAdmin();
+}
+
+function getUsuarioLogado() {
+    return sessaoAtual;
+}
+
+// ===== BOTÃO DE LOGIN / USUÁRIO LOGADO (AO LADO DA ENGRENAGEM) =====
+const EMPRESA_VIEW_KEY = 'flowsuite_empresa_visualizando';
+
+function getEmpresaVisualizando() {
+    return sessionStorage.getItem(EMPRESA_VIEW_KEY) || '';
+}
+
+function mudarEmpresaVisualizando(codigo) {
+    if (codigo) {
+        sessionStorage.setItem(EMPRESA_VIEW_KEY, codigo);
+    } else {
+        sessionStorage.removeItem(EMPRESA_VIEW_KEY);
+    }
+}
+
+async function popularSeletorEmpresaDev() {
+    const select = document.getElementById('seletorEmpresaDev');
+    if (!select) return;
+
+    try {
+        const resultado = await chamarAPI('listarEmpresas', {});
+        if (!resultado.empresas) return;
+        const atual = getEmpresaVisualizando();
+        select.innerHTML = `<option value="">${t('verComoPlaceholder')}</option>` +
+            resultado.empresas.map(e => `<option value="${e.id}" ${e.id === atual ? 'selected' : ''}>${escapeHtml(e.nome)}</option>`).join('');
+    } catch (e) {
+        console.error('Erro ao carregar empresas:', e);
+    }
+}
+
+async function atualizarBarraUsuario() {
+    const area = document.getElementById('areaUsuarioFlowsuite');
+    if (!area) return;
+
+    if (sessaoAtual) {
+        const ehDev = sessaoAtual.permissao === 'dev' || sessaoAtual.permissao === 'master';
+        const seletorEmpresaHtml = ehDev
+            ? `<select id="seletorEmpresaDev" onchange="mudarEmpresaVisualizando(this.value)" style="border:none;background:transparent;font-size:12px;font-weight:bold;color:#007bff;cursor:pointer;max-width:150px;"></select>`
+            : '';
+
+        area.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;background:#f1f3f5;padding:6px 14px;border-radius:20px;font-size:13px;color:#444;font-family:'Poppins',Arial,sans-serif;">
+                <span><strong>${escapeHtml(sessaoAtual.nome)}</strong></span>
+                ${seletorEmpresaHtml}
+                <button onclick="fazerLogout()" style="background:none;border:none;color:#dc3545;font-weight:bold;cursor:pointer;font-size:13px;padding:0;">${t('sairBtn')}</button>
+            </div>
+        `;
+
+        if (ehDev) {
+            await popularSeletorEmpresaDev();
+        }
+    } else {
+        area.innerHTML = `
+            <button onclick="mostrarModalLogin('Login', atualizarBarraUsuario)" style="background:#007bff;color:white;border:none;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer;font-family:'Poppins',Arial,sans-serif;">${t('loginBtn')}</button>
+        `;
+    }
+}
+function mostrarModalLogin(moduloSolicitado, callback) {
+    const modalExistente = document.getElementById('modalLoginCore');
+    if (modalExistente) modalExistente.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'modalLoginCore';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-family: 'Poppins', Arial, sans-serif;
+    `;
+
+    modal.innerHTML = `
+        <div style="background:white;padding:35px;border-radius:12px;max-width:400px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:40px;"></div>
+                <h2 style="color:#2C3E50;margin:10px 0 5px;">FlowSuite</h2>
+                ${moduloSolicitado === 'Login' ? `
+                <p style="color:#666;font-size:14px;">${t('loginTitulo')}</p>
+                ` : `
+                <p style="color:#666;font-size:14px;">${t('acessoModuloSolicitado')}</p>
+                <p style="color:#555;font-size:13px;font-weight:bold;">${moduloSolicitado}</p>
+                `}
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="display:block;font-weight:bold;color:#555;font-size:14px;">${t('usuarioLabel')}</label>
+                <input type="text" id="loginUsuario" placeholder="${t('usuarioPlaceholder')}" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-top:5px;">
+            </div>
+            <div style="margin-bottom:20px;position:relative;">
+                <label style="display:block;font-weight:bold;color:#555;font-size:14px;">${t('senhaLabel')}</label>
+                <div style="position:relative;">
+                    <input type="password" id="loginSenha" placeholder="${t('senhaPlaceholder')}" style="width:100%;padding:12px;padding-right:45px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-top:5px;" onkeydown="if(event.key==='Enter') document.getElementById('btnLoginCore').click()">
+                    <span onclick="toggleSenha()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;user-select:none;"></span>
+                </div>
+            </div>
+            <button id="btnLoginCore" style="width:100%;padding:12px;background:#007bff;color:white;border:none;border-radius:6px;font-size:16px;font-weight:bold;cursor:pointer;transition:0.2s;">${t('entrarBtn')}</button>
+            <button onclick="fecharModalLogin()" style="width:100%;padding:10px;background:transparent;color:#999;border:none;font-size:14px;cursor:pointer;margin-top:10px;">${t('cancelarBtn')}</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => document.getElementById('loginUsuario').focus(), 100);
+
+    document.getElementById('btnLoginCore').addEventListener('click', async function() {
+        const usuario = document.getElementById('loginUsuario').value.trim();
+        const senha = document.getElementById('loginSenha').value.trim();
+        if (!usuario || !senha) {
+            alert(t('preencherCampos'));
+            return;
+        }
+        const sucesso = await fazerLogin(usuario, senha);
+        if (sucesso) {
+            fecharModalLogin();
+            if (callback) callback();
+        } else {
+            document.getElementById('loginSenha').value = '';
+            document.getElementById('loginSenha').focus();
+        }
+    });
+}
+
+function fecharModalLogin() {
+    const modal = document.getElementById('modalLoginCore');
+    if (modal) modal.remove();
+}
+
+function toggleSenha() {
+    const campo = document.getElementById('loginSenha');
+    campo.type = campo.type === 'password' ? 'text' : 'password';
+}
+// ===== ANEXA O TOKEN NA URL DA FERRAMENTA =====
+function abrirModuloComToken(href) {
+    const token = sessionStorage.getItem('flowsuite_token');
+    if (!token) return href;
+    const separador = href.includes('?') ? '&' : '?';
+    let url = `${href}${separador}fs_token=${encodeURIComponent(token)}`;
+
+    const empresaVisualizando = getEmpresaVisualizando();
+    if (empresaVisualizando && sessaoAtual && (sessaoAtual.permissao === 'dev' || sessaoAtual.permissao === 'master')) {
+        url += `&fs_empresa=${encodeURIComponent(empresaVisualizando)}`;
+    }
+
+    return url;
+}
+
+function aplicarProtecaoCardsHorizontais() {
+    const cards = document.querySelectorAll('.card-horizontal');
+
+    cards.forEach(card => {
+        const link = card.querySelector('.acessar-modulo');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        let modulo = '';
+        if (href.includes('ReportFlow')) modulo = 'reportflow';
+        else if (href.includes('CalibrationFlow')) modulo = 'calibrationflow';
+        else if (href.includes('TrainingFlow')) modulo = 'trainingflow';
+        else return;
+
+        link.removeAttribute('href');
+        card.style.cursor = 'pointer';
+
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.acessar-modulo')) return;
+
+            if (sessaoAtual && temAcesso(modulo)) {
+                window.open(abrirModuloComToken(href), '_blank');
+                return;
+            }
+            if (sessaoAtual && !temAcesso(modulo)) {
+                alert(tf('semPermissaoModulo', {modulo: modulo}));
+                return;
+            }
+            const nomeModulo = modulo.charAt(0).toUpperCase() + modulo.slice(1);
+            mostrarModalLogin(nomeModulo, async function() {
+                if (temAcesso(modulo)) {
+                    window.open(abrirModuloComToken(href), '_blank');
+                } else {
+                    alert(tf('semPermissaoModulo', {modulo: modulo}));
+                }
+            });
+        });
+
+        link.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (sessaoAtual && temAcesso(modulo)) {
+                window.open(abrirModuloComToken(href), '_blank');
+            } else if (sessaoAtual && !temAcesso(modulo)) {
+                alert(tf('semPermissaoModulo', {modulo: modulo}));
+            } else {
+                const nomeModulo = modulo.charAt(0).toUpperCase() + modulo.slice(1);
+                mostrarModalLogin(nomeModulo, async function() {
+                    if (temAcesso(modulo)) {
+                        window.open(abrirModuloComToken(href), '_blank');
+                    } else {
+                        alert(tf('semPermissaoModulo', {modulo: modulo}));
+                    }
+                });
+            }
+        });
+    });
+}
+
+// CORREÇÃO DEFINITIVA - ÍCONE ADMIN
+document.addEventListener('DOMContentLoaded', function() {
+    const icone = document.getElementById('iconeAdmin');
+    if (icone) {
+        icone.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            window.location.href = 'admin.html';
+        });
+    }
+});
+
+// ===== FUNÇÃO PARA VERIFICAR PERMISSÃO DE EDIÇÃO NOS MÓDULOS =====
+function podeEscreverNoModulo(modulo) {
+    if (!sessaoAtual) return false;
+    if (!temAcesso(modulo)) return false;
+    
+    const nivel = getNivelUsuario();
+    if (nivel === 'admin') return true;
+    if (nivel === 'editor') return true;
+    if (nivel === 'leitura') return false;
+    
+    return false;
+}
+
+function podeExcluirNoModulo(modulo) {
+    if (!sessaoAtual) return false;
+    if (!temAcesso(modulo)) return false;
+    
+    const nivel = getNivelUsuario();
+    if (nivel === 'admin') return true;
+    
+    return false;
+}
+
+// ===== EXPORTAR PARA USO GLOBAL =====
+window.podeEscreverNoModulo = podeEscreverNoModulo;
+window.podeExcluirNoModulo = podeExcluirNoModulo;
+
+window.flowsuite = {
+    login: fazerLogin,
+    logout: fazerLogout,
+    temAcesso: temAcesso,
+    usuario: getUsuarioLogado,
+    getNivel: getNivelUsuario,
+    isAdmin: isAdmin,
+    isEditor: isEditor,
+    isLeitura: isLeitura,
+    isDev: isDev,
+    podeEditar: podeEditar,
+    podeExcluir: podeExcluir,
+    podeGerenciarUsuarios: podeGerenciarUsuarios,
+    verificarAcesso: function(modulo) {
+        if (sessaoAtual && temAcesso(modulo)) return true;
+        if (sessaoAtual && !temAcesso(modulo)) {
+            alert(t('semPermissaoModuloGenerico'));
+            window.location.href = 'index.html';
+            return false;
+        }
+        alert(t('facaLoginModulo'));
+        window.location.href = 'index.html';
+        return false;
+    }
+};
+
+console.log('FlowSuite Core carregado com API!');
+console.log('Usuário logado:', sessaoAtual ? sessaoAtual.nome : 'Nenhum');
+console.log('Nível:', sessaoAtual ? getNivelUsuario() : 'N/A');
+console.log('Módulos:', sessaoAtual ? sessaoAtual.modulos.join(', ') : 'Nenhum');
+
+console.log('FlowSuite Core carregado!');
+</script>
+</body>
+</html>

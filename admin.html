@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowSuite - Administração</title>
+
+    <!-- Funções comuns entre as ferramentas do FlowSuite (escapeHtml, tradução,
+         etc.) — precisa vir antes do script principal. -->
+    <script src="https://carlosocjunior.github.io/FlowSuite/shared.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 30px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            color: #2C3E50;
+            font-size: 24px;
+        }
+        .header .sub {
+            color: #666;
+            font-size: 14px;
+        }
+        .btn-voltar {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-voltar:hover {
+            background: #5a6268;
+        }
+        .btn-sair {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-sair:hover {
+            background: #c82333;
+        }
+        .seletor-idioma-btn.ativo {
+            background: #007bff !important;
+            color: white !important;
+        }
+        .oculto {
+            display: none !important;
+        }
+
+        .card-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+        .card-form h3 {
+            color: #2C3E50;
+            margin-bottom: 15px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-grid label {
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-grid input, .form-grid select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-grid input:focus, .form-grid select:focus {
+            outline: 2px solid #007bff;
+            border-color: transparent;
+        }
+        .modulos-checkbox {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .modulos-checkbox label {
+            font-weight: normal;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .modulos-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .btn-add {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .btn-add:hover {
+            background: #218838;
+        }
+
+        .tabela-usuarios {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .tabela-usuarios th {
+            background: #007bff;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+        }
+        .tabela-usuarios td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+        .tabela-usuarios tr:hover {
+            background: #f8f9fa;
+        }
+        .badge-modulo {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .badge-modulo.ativo {
+            background: #d4edda;
+            color: #155724;
+        }
+        .btn-editar {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        .btn-editar:hover {
+            background: #e0a800;
+        }
+        .btn-excluir {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-excluir:hover {
+            background: #c82333;
+        }
+
+        .vazio {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .alert-sucesso {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-erro {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .usuario-logado {
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .usuario-logado strong {
+            color: #007bff;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .modulos-checkbox {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .tabela-usuarios {
+                font-size: 12px;
+            }
+            .tabela-usuarios th, .tabela-usuarios td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- CABEÇALHO -->
+    <div class="header">
+        <div>
+            <h1>FlowSuite</h1>
+            <div class="sub" data-i18n="painelAdmin">Painel de Administração</div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items:center;">
+            <button class="seletor-idioma-btn" data-lang="pt" onclick="mudarIdioma('pt')" style="border:none;background:#f1f3f5;padding:6px 10px;border-radius:14px;font-size:12px;font-weight:bold;cursor:pointer;">PT</button>
+            <button class="seletor-idioma-btn" data-lang="en" onclick="mudarIdioma('en')" style="border:none;background:#f1f3f5;padding:6px 10px;border-radius:14px;font-size:12px;font-weight:bold;cursor:pointer;">EN</button>
+            <button class="seletor-idioma-btn" data-lang="es" onclick="mudarIdioma('es')" style="border:none;background:#f1f3f5;padding:6px 10px;border-radius:14px;font-size:12px;font-weight:bold;cursor:pointer;">ES</button>
+            <a href="index.html" class="btn-voltar" data-i18n="painelBtn">Painel</a>
+            <button class="btn-sair" onclick="logoutAdmin()" data-i18n="sairBtn">Sair</button>
+        </div>
+    </div>
+
+    <!-- USUÁRIO LOGADO -->
+    <div class="usuario-logado" id="usuarioLogado">
+<span data-i18n="logadoComo">Logado como:</span> <strong id="nomeAdmin">Carregando...</strong>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="alertMensagem" class="alert"></div>
+
+    <!-- FORMULÁRIO DE CADASTRO -->
+    <div class="card-form">
+        <h3 data-i18n="adicionarNovoUsuario">Adicionar Novo Usuário</h3>
+        <div class="form-grid">
+            <div>
+                <label data-i18n="nomeUsuarioLabel">Nome do Usuário *</label>
+                <input type="text" id="novoNome" placeholder="Ex: Joao Silva" data-i18n-placeholder="nomeUsuarioPlaceholder">
+            </div>
+            <div>
+                <label data-i18n="senhaLabel">Senha *</label>
+                <input type="text" id="novaSenha" placeholder="Digite uma senha" data-i18n-placeholder="senhaPlaceholder">
+            </div>
+        </div>
+                <div style="margin-top: 15px;">
+            <label data-i18n="modulosPermitidos">Módulos Permitidos:</label>
+            <div class="modulos-checkbox">
+                <label><input type="checkbox" value="reportflow"><span data-i18n="moduloReportflow">ReportFlow</span></label>
+                <label><input type="checkbox" value="calibrationflow"><span data-i18n="moduloEquipamentos">Equipamentos</span></label>
+                <label><input type="checkbox" value="trainingflow"><span data-i18n="moduloTreinamento">Treinamento</span></label>
+            </div>
+        </div>
+        <div id="campoEmpresaUsuario" class="oculto" style="margin-top: 15px;">
+            <label data-i18n="empresaLabel">Empresa:</label>
+            <select id="empresaSelect" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-top:5px;"></select>
+        </div>
+        <div style="margin-top: 15px;">
+            <label data-i18n="nivelPermissao">Nível de Permissão:</label>
+            <select id="permissaoSelect" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-top:5px;">
+                <option value="leitura" data-i18n="opcaoLeitura">Leitura - Apenas consultar</option>
+                <option value="editor" data-i18n="opcaoEditor">Editor - Consultar e editar</option>
+                <option value="admin" data-i18n="opcaoAdmin">Admin - Controle total</option>
+                <option value="dev" id="opcaoDev" class="oculto" data-i18n="opcaoDev">Dev - Gerencia empresas</option>
+            </select>
+        </div>
+        <button class="btn-add" onclick="adicionarUsuario()" data-i18n="adicionarUsuarioBtn">Adicionar Usuário</button>
+    <!-- LISTA DE USUÁRIOS -->
+    <h3 style="color: #2C3E50; margin-bottom: 15px;" data-i18n="usuariosCadastrados">Usuários Cadastrados</h3>
+    <div id="listaUsuarios">
+        <div class="vazio" data-i18n="carregando">Carregando...</div>
+    </div>
+
+    <!-- GESTÃO DE EMPRESAS (SÓ DEV) -->
+    <div id="secaoEmpresas" class="oculto">
+        <div class="card-form" style="margin-top:25px;">
+            <h3 data-i18n="cadastrarEmpresa">Cadastrar Empresa</h3>
+            <div class="form-grid">
+                <div>
+                    <label data-i18n="nomeEmpresaLabel">Nome da Empresa *</label>
+                    <input type="text" id="novaEmpresaNome" placeholder="Ex: Empresa X" data-i18n-placeholder="nomeEmpresaPlaceholder">
+                </div>
+                <div>
+                    <label data-i18n="codigoEmpresaLabel">Código (3 letras) *</label>
+                    <input type="text" id="novaEmpresaCodigo" placeholder="Ex: PRO" maxlength="3" style="text-transform:uppercase;">
+                </div>
+            </div>
+            <div style="margin-top:15px;">
+                <label data-i18n="driveFolderIdLabel">ID da Pasta no Drive</label>
+                <input type="text" id="novaEmpresaDrive" placeholder="Ex: 10-PihC2bIxJvKU5h7xFYkhqxYxtt4pr9">
+            </div>
+            <div style="margin-top:15px;">
+                <label data-i18n="calibrationUrlLabel">URL do CalibrationFlow (backend)</label>
+                <input type="text" id="novaEmpresaCalib" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <div style="margin-top:15px;">
+                <label data-i18n="trainingUrlLabel">URL do TrainingFlow (backend)</label>
+                <input type="text" id="novaEmpresaTrain" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <div style="margin-top:15px;">
+                <label data-i18n="reportUrlLabel">URL do ReportFlow (backend)</label>
+                <input type="text" id="novaEmpresaReport" placeholder="https://script.google.com/macros/s/.../exec">
+            </div>
+            <button class="btn-add" onclick="criarEmpresa()" data-i18n="cadastrarEmpresaBtn">Cadastrar Empresa</button>
+        </div>
+
+        <h3 style="color: #2C3E50; margin: 25px 0 15px;" data-i18n="empresasCadastradas">Empresas Cadastradas</h3>
+        <div id="listaEmpresas">
+            <div class="vazio" data-i18n="carregando">Carregando...</div>
+        </div>
+    </div>
+</div>
+<script>
+    // ==========================================
+    // ADMIN - Gerenciamento de Usuários (API)
+    // ==========================================
+
+    // CONFIGURAÇÃO DA API
+    const API_URL = 'https://flowsuite-plus-api.flowsuite-plus.workers.dev';
+
+    // ==========================================
+    // IDIOMA / TRADUÇÃO
+    // ==========================================
+    let idiomaAtual = localStorage.getItem('flowsuite_idioma') || 'pt';
+
+    const I18N = {
+        pt: {
+            painelAdmin: 'Painel de Administração',
+            painelBtn: 'Painel',
+            sairBtn: 'Sair',
+            logadoComo: 'Logado como:',
+            carregando: 'Carregando...',
+            adicionarNovoUsuario: 'Adicionar Novo Usuário',
+            nomeUsuarioLabel: 'Nome do Usuário *',
+            nomeUsuarioPlaceholder: 'Ex: Joao Silva',
+            senhaLabel: 'Senha *',
+            senhaPlaceholder: 'Digite uma senha',
+            modulosPermitidos: 'Módulos Permitidos:',
+            moduloReportflow: 'ReportFlow',
+            moduloEquipamentos: 'Equipamentos',
+            moduloTreinamento: 'Treinamento',
+            nivelPermissao: 'Nível de Permissão:',
+            opcaoLeitura: 'Leitura - Apenas consultar',
+            opcaoEditor: 'Editor - Consultar e editar',
+            opcaoAdmin: 'Admin - Controle total',
+            opcaoDev: 'Dev - Gerencia empresas',
+            empresaLabel: 'Empresa:',
+            cadastrarEmpresa: 'Cadastrar Empresa',
+            nomeEmpresaLabel: 'Nome da Empresa *',
+            nomeEmpresaPlaceholder: 'Ex: Empresa X',
+            driveFolderIdLabel: 'ID da Pasta no Drive',
+            calibrationUrlLabel: 'URL do CalibrationFlow (backend)',
+            trainingUrlLabel: 'URL do TrainingFlow (backend)',
+            reportUrlLabel: 'URL do ReportFlow (backend)',
+            cadastrarEmpresaBtn: 'Cadastrar Empresa',
+            empresasCadastradas: 'Empresas Cadastradas',
+            colEmpresa: 'Empresa',
+            colCodigo: 'Código',
+            codigoEmpresaLabel: 'Código (3 letras) *',
+            codigo_empresa_invalido: 'Código precisa ter exatamente 3 letras (ex: PRO)',
+            codigo_empresa_ja_existe: 'Já existe uma empresa com esse código',
+            editarBtn: 'Editar',
+            excluirBtn: 'Excluir',
+            semEmpresasCadastradas: 'Nenhuma empresa cadastrada.',
+            digiteNomeEmpresa: 'Digite o nome da empresa.',
+            empresaCriadaSucesso: 'Empresa "{nome}" cadastrada com sucesso!',
+            empresaAtualizadaSucesso: 'Empresa atualizada com sucesso!',
+            confirmExcluirEmpresa: 'Tem certeza que deseja excluir a empresa "{nome}"?\n\nSó é possível excluir empresas sem usuários vinculados.',
+            empresaExcluidaSucesso: 'Empresa excluída com sucesso!',
+            promptEditarEmpresa: 'Editando empresa "{nome}"\n\nDeixe em branco para manter o valor atual.',
+            promptNovoNomeEmpresa: 'Nome da empresa:',
+            promptNovaUrlCalib: 'URL do CalibrationFlow:',
+            promptNovaUrlTrain: 'URL do TrainingFlow:',
+            promptNovaUrlReport: 'URL do ReportFlow:',
+            promptNovoDriveFolder: 'ID da pasta no Drive:',
+            selecioneEmpresa: 'Selecione a empresa deste usuário.',
+            sem_permissao_empresa: 'Você não tem permissão sobre usuários de outra empresa',
+            nao_pode_criar_dev: 'Você não pode criar ou promover a nível Dev',
+            nao_pode_alterar_dev: 'Você não pode alterar um usuário Dev',
+            nao_pode_excluir_dev: 'Você não pode excluir um usuário Dev',
+            empresa_nao_encontrada: 'Empresa não encontrada',
+            empresa_nao_informada: 'Selecione a empresa',
+            acesso_negado_dev: 'Acesso negado - apenas Dev',
+            empresa_possui_usuarios: 'Esta empresa ainda tem usuários vinculados. Mova ou exclua-os antes.',
+            adicionarUsuarioBtn: 'Adicionar Usuário',
+            usuariosCadastrados: 'Usuários Cadastrados',
+            colId: 'ID',
+            colNome: 'Nome',
+            colModulos: 'Módulos',
+            colPermissao: 'Permissão',
+            colAcoes: 'Ações',
+            nenhum: 'Nenhum',
+            administrador: 'Administrador',
+            permissaoAdmin: 'Admin',
+            permissaoEditor: 'Editor',
+            permissaoLeitura: 'Leitura',
+            nenhumUsuarioCadastrado: 'Nenhum usuário cadastrado.',
+            digiteNomeUsuario: 'Digite o nome do usuário.',
+            digiteSenha: 'Digite uma senha.',
+            selecioneModulo: 'Selecione pelo menos um módulo.',
+            sessaoExpiradaLogin: 'Sessão expirada. Faça login novamente.',
+            usuarioAdicionadoSucesso: 'Usuário "{nome}" adicionado com sucesso!',
+            usuarioNaoEncontrado: 'Usuário não encontrado.',
+            usuarioAtualizadoSucesso: 'Usuário "{nome}" atualizado com sucesso!',
+            nivelInvalido: 'Nível inválido. Mantendo o atual.',
+            naoPodeExcluirAdmin: 'Não é possível excluir um administrador.',
+            usuarioExcluidoSucesso: 'Usuário "{nome}" excluído com sucesso!',
+            promptEditandoSenha: 'Editando "{nome}"\n\nDigite a nova senha (deixe em branco para manter a atual):',
+            promptEditandoPermissoes: 'Editando permissões de "{nome}"\n\n',
+            promptMarqueModulos: 'Marque os módulos que este usuário pode acessar:\n\n',
+            promptNumerosModulos: '\nDigite os números dos módulos separados por vírgula (ex: 1,3) ou 0 para nenhum:',
+            promptNivelAtual: 'Nível de permissão atual: {nivel}\n\n',
+            promptNovoNivel: 'Digite o novo nível (admin / editor / leitura) ou deixe em branco para manter:',
+            confirmExcluirUsuario: 'Tem certeza que deseja excluir o usuário "{nome}"?',
+            confirmSair: 'Deseja realmente sair?',
+            facaLoginPainelAdmin: 'Faça login para acessar o painel administrativo.',
+            acessoNegadoAdmin: 'Acesso negado. Apenas administradores podem acessar esta página.',
+            falhaComunicacao: 'Falha na comunicação com o servidor',
+            faca_login_novamente: 'Faça login novamente.',
+            credenciais_invalidas: 'Usuário ou senha inválidos',
+            sessao_encerrada: 'Sua sessão foi encerrada (login feito em outro lugar, ou logout). Faça login novamente.',
+            muitas_tentativas: 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.',
+            erro_interno: 'Erro interno no servidor. Tente novamente em instantes.',
+            token_nao_fornecido: 'Token não fornecido',
+            usuario_nao_encontrado: 'Usuário não encontrado',
+            token_invalido: 'Token inválido',
+            acesso_negado_admin: 'Acesso negado - apenas admin',
+            dados_incompletos: 'Dados incompletos',
+            usuario_ja_existe: 'Usuário já existe',
+            nao_pode_excluir_admin: 'Não pode excluir administrador',
+            acao_invalida: 'Ação inválida',
+        },
+        en: {
+            painelAdmin: 'Admin Panel',
+            painelBtn: 'Dashboard',
+            sairBtn: 'Logout',
+            logadoComo: 'Signed in as:',
+            carregando: 'Loading...',
+            adicionarNovoUsuario: 'Add New User',
+            nomeUsuarioLabel: 'Username *',
+            nomeUsuarioPlaceholder: 'E.g.: John Smith',
+            senhaLabel: 'Password *',
+            senhaPlaceholder: 'Enter a password',
+            modulosPermitidos: 'Allowed Modules:',
+            moduloReportflow: 'ReportFlow',
+            moduloEquipamentos: 'Equipment',
+            moduloTreinamento: 'Training',
+            nivelPermissao: 'Permission Level:',
+            opcaoLeitura: 'Read only - View only',
+            opcaoEditor: 'Editor - View and edit',
+            opcaoAdmin: 'Admin - Full control',
+            opcaoDev: 'Dev - Manages companies',
+            empresaLabel: 'Company:',
+            cadastrarEmpresa: 'Add Company',
+            nomeEmpresaLabel: 'Company Name *',
+            nomeEmpresaPlaceholder: 'E.g.: Company X',
+            driveFolderIdLabel: 'Drive Folder ID',
+            calibrationUrlLabel: 'CalibrationFlow URL (backend)',
+            trainingUrlLabel: 'TrainingFlow URL (backend)',
+            reportUrlLabel: 'ReportFlow URL (backend)',
+            cadastrarEmpresaBtn: 'Add Company',
+            empresasCadastradas: 'Registered Companies',
+            colEmpresa: 'Company',
+            colCodigo: 'Code',
+            codigoEmpresaLabel: 'Code (3 letters) *',
+            codigo_empresa_invalido: 'Code must be exactly 3 letters (e.g.: PRO)',
+            codigo_empresa_ja_existe: 'A company with this code already exists',
+            editarBtn: 'Edit',
+            excluirBtn: 'Delete',
+            semEmpresasCadastradas: 'No companies registered.',
+            digiteNomeEmpresa: 'Enter the company name.',
+            empresaCriadaSucesso: 'Company "{nome}" added successfully!',
+            empresaAtualizadaSucesso: 'Company updated successfully!',
+            confirmExcluirEmpresa: 'Are you sure you want to delete company "{nome}"?\n\nOnly companies without linked users can be deleted.',
+            empresaExcluidaSucesso: 'Company deleted successfully!',
+            promptEditarEmpresa: 'Editing company "{nome}"\n\nLeave blank to keep the current value.',
+            promptNovoNomeEmpresa: 'Company name:',
+            promptNovaUrlCalib: 'CalibrationFlow URL:',
+            promptNovaUrlTrain: 'TrainingFlow URL:',
+            promptNovaUrlReport: 'ReportFlow URL:',
+            promptNovoDriveFolder: 'Drive folder ID:',
+            selecioneEmpresa: 'Select this user\'s company.',
+            sem_permissao_empresa: 'You do not have permission over users from another company',
+            nao_pode_criar_dev: 'You cannot create or promote to Dev level',
+            nao_pode_alterar_dev: 'You cannot modify a Dev user',
+            nao_pode_excluir_dev: 'You cannot delete a Dev user',
+            empresa_nao_encontrada: 'Company not found',
+            empresa_nao_informada: 'Select the company',
+            acesso_negado_dev: 'Access denied - Dev only',
+            empresa_possui_usuarios: 'This company still has linked users. Move or delete them first.',
+            adicionarUsuarioBtn: 'Add User',
+            usuariosCadastrados: 'Registered Users',
+            colId: 'ID',
+            colNome: 'Name',
+            colModulos: 'Modules',
+            colPermissao: 'Permission',
+            colAcoes: 'Actions',
+            nenhum: 'None',
+            administrador: 'Administrator',
+            permissaoAdmin: 'Admin',
+            permissaoEditor: 'Editor',
+            permissaoLeitura: 'Read only',
+            nenhumUsuarioCadastrado: 'No registered users.',
+            digiteNomeUsuario: 'Enter the username.',
+            digiteSenha: 'Enter a password.',
+            selecioneModulo: 'Select at least one module.',
+            sessaoExpiradaLogin: 'Session expired. Please sign in again.',
+            usuarioAdicionadoSucesso: 'User "{nome}" added successfully!',
+            usuarioNaoEncontrado: 'User not found.',
+            usuarioAtualizadoSucesso: 'User "{nome}" updated successfully!',
+            nivelInvalido: 'Invalid level. Keeping the current one.',
+            naoPodeExcluirAdmin: 'Cannot delete an administrator.',
+            usuarioExcluidoSucesso: 'User "{nome}" deleted successfully!',
+            promptEditandoSenha: 'Editing "{nome}"\n\nEnter the new password (leave blank to keep the current one):',
+            promptEditandoPermissoes: 'Editing permissions for "{nome}"\n\n',
+            promptMarqueModulos: 'Check the modules this user can access:\n\n',
+            promptNumerosModulos: '\nEnter the module numbers separated by commas (e.g.: 1,3) or 0 for none:',
+            promptNivelAtual: 'Current permission level: {nivel}\n\n',
+            promptNovoNivel: 'Enter the new level (admin / editor / leitura) or leave blank to keep it:',
+            confirmExcluirUsuario: 'Are you sure you want to delete the user "{nome}"?',
+            confirmSair: 'Are you sure you want to sign out?',
+            facaLoginPainelAdmin: 'Sign in to access the admin panel.',
+            acessoNegadoAdmin: 'Access denied. Only administrators can access this page.',
+            falhaComunicacao: 'Failed to communicate with the server',
+            faca_login_novamente: 'Please sign in again.',
+            credenciais_invalidas: 'Invalid username or password',
+            sessao_encerrada: 'Your session was closed (signed in elsewhere, or logged out). Please sign in again.',
+            muitas_tentativas: 'Too many login attempts. Wait a few minutes and try again.',
+            erro_interno: 'Internal server error. Please try again shortly.',
+            token_nao_fornecido: 'Token not provided',
+            usuario_nao_encontrado: 'User not found',
+            token_invalido: 'Invalid token',
+            acesso_negado_admin: 'Access denied - admin only',
+            dados_incompletos: 'Incomplete data',
+            usuario_ja_existe: 'User already exists',
+            nao_pode_excluir_admin: 'Cannot delete administrator',
+            acao_invalida: 'Invalid action',
+        },
+        es: {
+            painelAdmin: 'Panel de Administración',
+            painelBtn: 'Panel',
+            sairBtn: 'Salir',
+            logadoComo: 'Sesión iniciada como:',
+            carregando: 'Cargando...',
+            adicionarNovoUsuario: 'Agregar Nuevo Usuario',
+            nomeUsuarioLabel: 'Nombre de Usuario *',
+            nomeUsuarioPlaceholder: 'Ej: Juan Pérez',
+            senhaLabel: 'Contraseña *',
+            senhaPlaceholder: 'Ingrese una contraseña',
+            modulosPermitidos: 'Módulos Permitidos:',
+            moduloReportflow: 'ReportFlow',
+            moduloEquipamentos: 'Equipos',
+            moduloTreinamento: 'Capacitación',
+            nivelPermissao: 'Nivel de Permiso:',
+            opcaoLeitura: 'Lectura - Solo consultar',
+            opcaoEditor: 'Editor - Consultar y editar',
+            opcaoAdmin: 'Admin - Control total',
+            opcaoDev: 'Dev - Gestiona empresas',
+            empresaLabel: 'Empresa:',
+            cadastrarEmpresa: 'Registrar Empresa',
+            nomeEmpresaLabel: 'Nombre de la Empresa *',
+            nomeEmpresaPlaceholder: 'Ej: Empresa X',
+            driveFolderIdLabel: 'ID de la Carpeta en Drive',
+            calibrationUrlLabel: 'URL de CalibrationFlow (backend)',
+            trainingUrlLabel: 'URL de TrainingFlow (backend)',
+            reportUrlLabel: 'URL de ReportFlow (backend)',
+            cadastrarEmpresaBtn: 'Registrar Empresa',
+            empresasCadastradas: 'Empresas Registradas',
+            colEmpresa: 'Empresa',
+            colCodigo: 'Código',
+            codigoEmpresaLabel: 'Código (3 letras) *',
+            codigo_empresa_invalido: 'Código precisa ter exatamente 3 letras (ex: PRO)',
+            codigo_empresa_ja_existe: 'Já existe uma empresa com esse código',
+            editarBtn: 'Editar',
+            excluirBtn: 'Eliminar',
+            semEmpresasCadastradas: 'No hay empresas registradas.',
+            digiteNomeEmpresa: 'Ingrese el nombre de la empresa.',
+            empresaCriadaSucesso: '¡Empresa "{nome}" registrada con éxito!',
+            empresaAtualizadaSucesso: '¡Empresa actualizada con éxito!',
+            confirmExcluirEmpresa: '¿Está seguro de que desea eliminar la empresa "{nome}"?\n\nSolo se pueden eliminar empresas sin usuarios vinculados.',
+            empresaExcluidaSucesso: '¡Empresa eliminada con éxito!',
+            promptEditarEmpresa: 'Editando empresa "{nome}"\n\nDeje en blanco para mantener el valor actual.',
+            promptNovoNomeEmpresa: 'Nombre de la empresa:',
+            promptNovaUrlCalib: 'URL de CalibrationFlow:',
+            promptNovaUrlTrain: 'URL de TrainingFlow:',
+            promptNovaUrlReport: 'URL de ReportFlow:',
+            promptNovoDriveFolder: 'ID de la carpeta en Drive:',
+            selecioneEmpresa: 'Seleccione la empresa de este usuario.',
+            sem_permissao_empresa: 'No tiene permiso sobre usuarios de otra empresa',
+            nao_pode_criar_dev: 'No puede crear o promover a nivel Dev',
+            nao_pode_alterar_dev: 'No puede modificar a un usuario Dev',
+            nao_pode_excluir_dev: 'No puede eliminar a un usuario Dev',
+            empresa_nao_encontrada: 'Empresa no encontrada',
+            empresa_nao_informada: 'Seleccione la empresa',
+            acesso_negado_dev: 'Acceso denegado - solo Dev',
+            empresa_possui_usuarios: 'Esta empresa aún tiene usuarios vinculados. Muévalos o elimínelos primero.',
+            adicionarUsuarioBtn: 'Agregar Usuario',
+            usuariosCadastrados: 'Usuarios Registrados',
+            colId: 'ID',
+            colNome: 'Nombre',
+            colModulos: 'Módulos',
+            colPermissao: 'Permiso',
+            colAcoes: 'Acciones',
+            nenhum: 'Ninguno',
+            administrador: 'Administrador',
+            permissaoAdmin: 'Admin',
+            permissaoEditor: 'Editor',
+            permissaoLeitura: 'Lectura',
+            nenhumUsuarioCadastrado: 'No hay usuarios registrados.',
+            digiteNomeUsuario: 'Ingrese el nombre de usuario.',
+            digiteSenha: 'Ingrese una contraseña.',
+            selecioneModulo: 'Seleccione al menos un módulo.',
+            sessaoExpiradaLogin: 'Sesión expirada. Inicie sesión nuevamente.',
+            usuarioAdicionadoSucesso: '¡Usuario "{nome}" agregado con éxito!',
+            usuarioNaoEncontrado: 'Usuario no encontrado.',
+            usuarioAtualizadoSucesso: '¡Usuario "{nome}" actualizado con éxito!',
+            nivelInvalido: 'Nivel inválido. Se mantiene el actual.',
+            naoPodeExcluirAdmin: 'No es posible eliminar a un administrador.',
+            usuarioExcluidoSucesso: '¡Usuario "{nome}" eliminado con éxito!',
+            promptEditandoSenha: 'Editando "{nome}"\n\nIngrese la nueva contraseña (deje en blanco para mantener la actual):',
+            promptEditandoPermissoes: 'Editando permisos de "{nome}"\n\n',
+            promptMarqueModulos: 'Marque los módulos a los que este usuario puede acceder:\n\n',
+            promptNumerosModulos: '\nIngrese los números de los módulos separados por comas (ej: 1,3) o 0 para ninguno:',
+            promptNivelAtual: 'Nivel de permiso actual: {nivel}\n\n',
+            promptNovoNivel: 'Ingrese el nuevo nivel (admin / editor / leitura) o deje en blanco para mantenerlo:',
+            confirmExcluirUsuario: '¿Está seguro de que desea eliminar al usuario "{nome}"?',
+            confirmSair: '¿Está seguro de que desea salir?',
+            facaLoginPainelAdmin: 'Inicie sesión para acceder al panel administrativo.',
+            acessoNegadoAdmin: 'Acceso denegado. Solo los administradores pueden acceder a esta página.',
+            falhaComunicacao: 'Error de comunicación con el servidor',
+            faca_login_novamente: 'Inicie sesión nuevamente.',
+            credenciais_invalidas: 'Usuario o contraseña inválidos',
+            sessao_encerrada: 'Su sesión fue cerrada (inició sesión en otro lugar, o cerró sesión). Inicie sesión nuevamente.',
+            muitas_tentativas: 'Demasiados intentos de inicio de sesión. Espere unos minutos e intente de nuevo.',
+            erro_interno: 'Error interno del servidor. Inténtelo de nuevo en unos instantes.',
+            token_nao_fornecido: 'Token no proporcionado',
+            usuario_nao_encontrado: 'Usuario no encontrado',
+            token_invalido: 'Token inválido',
+            acesso_negado_admin: 'Acceso denegado - solo admin',
+            dados_incompletos: 'Datos incompletos',
+            usuario_ja_existe: 'El usuario ya existe',
+            nao_pode_excluir_admin: 'No se puede eliminar al administrador',
+            acao_invalida: 'Acción inválida',
+        }
+    };
+
+    // t(), tf(), escapeHtml() e aplicarIdioma() agora vêm do shared.js
+    // (usam I18N e idiomaAtual daqui)
+
+    function mudarIdioma(lang) {
+        idiomaAtual = lang;
+        localStorage.setItem('flowsuite_idioma', lang);
+        aplicarIdioma();
+    }
+
+    // ===== FUNÇÕES DE COMUNICAÇÃO COM API =====
+    async function chamarAPI(acao, dados = {}) {
+        const token = sessionStorage.getItem('flowsuite_token');
+        
+        const payload = {
+            acao: acao,
+            ...dados
+        };
+        
+        if (token) {
+            payload.token = token;
+        }
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            const text = await response.text();
+            return JSON.parse(text);
+        } catch (error) {
+            console.error('Erro na API:', error);
+            return { erro: 'falhaComunicacao' };
+        }
+    }
+
+    // ===== VERIFICA ACESSO (APENAS ADMIN) =====
+    let usuarioAtual = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        aplicarIdioma();
+        const token = sessionStorage.getItem('flowsuite_token');
+
+        if (!token) {
+            alert(t('facaLoginPainelAdmin'));
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const valido = await validarSessaoNoServidor();
+        if (!valido) return;
+
+        configurarUIPorNivel();
+        carregarUsuarios();
+        if (usuarioAtual.permissao === 'dev' || usuarioAtual.permissao === 'master') {
+            carregarEmpresas();
+        }
+        iniciarRevalidacaoPeriodicaSessao();
+    });
+
+    // Confirma no servidor que o token ainda está ativo (não foi encerrado por
+    // logout, nem substituído por um login em outro lugar) e atualiza usuarioAtual
+    // com os dados mais recentes (permissao/empresa podem ter mudado).
+    async function validarSessaoNoServidor() {
+        const token = sessionStorage.getItem('flowsuite_token');
+        if (!token) return false;
+
+        const resultado = await chamarAPI('verificar', { token });
+
+        if (!resultado.valido) {
+            sessionStorage.removeItem('flowsuite_token');
+            sessionStorage.removeItem('flowsuite_sessao');
+            alert(t(resultado.erro || 'sessaoExpiradaLogin'));
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        usuarioAtual = resultado.usuario;
+        sessionStorage.setItem('flowsuite_sessao', JSON.stringify(usuarioAtual));
+
+        if (usuarioAtual.permissao !== 'admin' && usuarioAtual.permissao !== 'dev' && usuarioAtual.permissao !== 'master') {
+            alert(t('acessoNegadoAdmin'));
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        document.getElementById('nomeAdmin').textContent = usuarioAtual.nome;
+        return true;
+    }
+
+    function iniciarRevalidacaoPeriodicaSessao() {
+        setInterval(async () => {
+            await validarSessaoNoServidor();
+        }, 15000);
+    }
+
+    function ehDev() {
+        return usuarioAtual && (usuarioAtual.permissao === 'dev' || usuarioAtual.permissao === 'master');
+    }
+
+    function configurarUIPorNivel() {
+        document.getElementById('opcaoDev').classList.toggle('oculto', !ehDev());
+        document.getElementById('campoEmpresaUsuario').classList.toggle('oculto', !ehDev());
+        document.getElementById('secaoEmpresas').classList.toggle('oculto', !ehDev());
+        if (ehDev()) {
+            popularSelectEmpresas();
+        }
+    }
+
+    async function popularSelectEmpresas(selecionarId) {
+        const token = sessionStorage.getItem('flowsuite_token');
+        const resultado = await chamarAPI('listarEmpresas', { token });
+        const select = document.getElementById('empresaSelect');
+        if (resultado.erro) {
+            select.innerHTML = `<option value="">${t(resultado.erro)}</option>`;
+            return;
+        }
+        const empresas = resultado.empresas || [];
+        select.innerHTML = empresas.map(e => `<option value="${e.id}">${escapeHtml(e.nome)}</option>`).join('');
+        if (selecionarId) select.value = selecionarId;
+        return empresas;
+    }
+
+    // ===== CARREGAR USUÁRIOS DA API =====
+    async function carregarUsuarios() {
+        const container = document.getElementById('listaUsuarios');
+        container.innerHTML = `<div class="vazio">${t('carregando')}</div>`;
+        
+        const token = sessionStorage.getItem('flowsuite_token');
+        if (!token) {
+            container.innerHTML = `<div class="vazio">${t('sessaoExpiradaLogin')}</div>`;
+            return;
+        }
+        
+        const resposta = await chamarAPI('listar', { token });
+        
+        if (resposta.erro) {
+            container.innerHTML = `<div class="vazio">${t(resposta.erro)}</div>`;
+            return;
+        }
+        
+        const resultado = resposta.usuarios || [];
+        if (resultado.length === 0) {
+            container.innerHTML = `<div class="vazio">${t('nenhumUsuarioCadastrado')}</div>`;
+            return;
+        }
+        
+        const usuarios = resultado;
+        const mostrarEmpresa = ehDev();
+        let mapaEmpresas = {};
+        if (mostrarEmpresa) {
+            const empresas = await popularSelectEmpresas();
+            (empresas || []).forEach(e => mapaEmpresas[e.id] = e.nome);
+        }
+        
+        let html = `
+            <table class="tabela-usuarios">
+                <thead>
+                    <tr>
+                        <th>${t('colId')}</th>
+                        <th>${t('colNome')}</th>
+                        ${mostrarEmpresa ? `<th>${t('colEmpresa')}</th>` : ''}
+                        <th>${t('colModulos')}</th>
+                        <th>${t('colPermissao')}</th>
+                        <th>${t('colAcoes')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        usuarios.forEach(u => {
+            const modulosHtml = u.modulos.map(m => {
+                const nomes = {
+                    'reportflow': t('moduloReportflow'),
+                    'calibrationflow': t('moduloEquipamentos'),
+                    'trainingflow': t('moduloTreinamento')
+                };
+                return `<span class="badge-modulo ativo">${nomes[m] || m}</span>`;
+            }).join(' ');
+            
+            const permissaoLabel = u.permissao === 'dev' ? 'Dev' :
+                                  u.permissao === 'master' ? 'Master' :
+                                  u.permissao === 'admin' ? t('permissaoAdmin') :
+                                  u.permissao === 'editor' ? t('permissaoEditor') : t('permissaoLeitura');
+            
+            // dev só mexe em dev; nem dev nem master (exceto o próprio dev) mexem em master
+            const alvoBloqueado = (u.permissao === 'dev' || (u.permissao === 'master' && usuarioAtual.permissao !== 'dev'))
+                && String(u.id) !== String(usuarioAtual.id);
+            const alvoEhDev = alvoBloqueado;
+            const empresaNome = mapaEmpresas[u.empresa] || u.empresa || '-';
+            
+            html += `
+                <tr id="row_${u.id}">
+                    <td>${u.id}</td>
+                    <td><strong>${escapeHtml(u.nome)}</strong></td>
+                    ${mostrarEmpresa ? `<td>${escapeHtml(empresaNome)}</td>` : ''}
+                    <td>${modulosHtml || `<span style="color:#999;">${t('nenhum')}</span>`}</td>
+                    <td><span class="badge-modulo ativo">${permissaoLabel}</span></td>
+                    <td>
+                        ${!alvoEhDev ? `
+                            <button class="btn-editar" onclick="editarUsuario('${u.id}')"></button>
+                            <button class="btn-excluir" onclick="excluirUsuario('${u.id}')"></button>
+                        ` : `<span style="color:#999;font-size:12px;">Dev</span>`}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+        // ===== ADICIONAR USUÁRIO (API) =====
+    async function adicionarUsuario() {
+        const nome = document.getElementById('novoNome').value.trim();
+        const senha = document.getElementById('novaSenha').value.trim();
+        const checkboxes = document.querySelectorAll('.modulos-checkbox input[type="checkbox"]:checked');
+        const permissaoSelect = document.getElementById('permissaoSelect');
+        const permissao = permissaoSelect ? permissaoSelect.value : 'leitura';
+        
+        if (!nome) {
+            mostrarAlerta(t('digiteNomeUsuario'), 'erro');
+            return;
+        }
+        if (!senha) {
+            mostrarAlerta(t('digiteSenha'), 'erro');
+            return;
+        }
+        if (checkboxes.length === 0) {
+            mostrarAlerta(t('selecioneModulo'), 'erro');
+            return;
+        }
+        
+        let empresa = usuarioAtual.empresa;
+        if (ehDev()) {
+            const empresaSelect = document.getElementById('empresaSelect');
+            empresa = empresaSelect ? empresaSelect.value : '';
+            if (!empresa) {
+                mostrarAlerta(t('selecioneEmpresa'), 'erro');
+                return;
+            }
+        }
+        
+        const modulos = Array.from(checkboxes).map(cb => cb.value);
+        const token = sessionStorage.getItem('flowsuite_token');
+        
+        if (!token) {
+            mostrarAlerta(t('sessaoExpiradaLogin'), 'erro');
+            return;
+        }
+        
+        const resultado = await chamarAPI('adicionar', {
+            token,
+            nome,
+            senha,
+            modulos,
+            permissao,
+            empresaId: empresa
+        });
+        
+        if (resultado.erro) {
+            mostrarAlerta(t(resultado.erro), 'erro');
+            return;
+        }
+        
+        document.getElementById('novoNome').value = '';
+        document.getElementById('novaSenha').value = '';
+        document.querySelectorAll('.modulos-checkbox input[type="checkbox"]').forEach(cb => cb.checked = false);
+        if (permissaoSelect) permissaoSelect.value = 'leitura';
+        
+        mostrarAlerta(tf('usuarioAdicionadoSucesso', {nome: nome}), 'sucesso');
+        carregarUsuarios();
+    }
+        // ===== EDITAR USUÁRIO (API) =====
+    async function editarUsuario(id) {
+        const token = sessionStorage.getItem('flowsuite_token');
+        if (!token) {
+            mostrarAlerta(t('sessaoExpiradaLogin'), 'erro');
+            return;
+        }
+        
+        // Primeiro, buscar dados atuais do usuário (só ele, não a lista inteira)
+        const resultadoBusca = await chamarAPI('buscarUsuario', { token, id });
+        if (resultadoBusca.erro) {
+            mostrarAlerta(t(resultadoBusca.erro), 'erro');
+            return;
+        }
+        
+        const usuario = resultadoBusca.usuario;
+        if (!usuario) {
+            mostrarAlerta(t('usuarioNaoEncontrado'), 'erro');
+            return;
+        }
+        
+        const novoSenha = prompt(tf('promptEditandoSenha', {nome: usuario.nome}));
+        if (novoSenha === null) return;
+        
+        const modulosAtuais = usuario.modulos || [];
+        const modulosDisponiveis = ['reportflow', 'calibrationflow', 'trainingflow'];
+        const nomesModulos = {
+            'reportflow': t('moduloReportflow'),
+            'calibrationflow': t('moduloEquipamentos'),
+            'trainingflow': t('moduloTreinamento')
+        };
+        
+        let msg = tf('promptEditandoPermissoes', {nome: usuario.nome});
+        msg += t('promptMarqueModulos');
+        
+        modulosDisponiveis.forEach((m, i) => {
+            const checked = modulosAtuais.includes(m) ? '[x]' : '[ ]';
+            msg += `${i+1}. ${checked} ${nomesModulos[m]}\n`;
+        });
+        
+        msg += t('promptNumerosModulos');
+        
+        const resposta = prompt(msg);
+        if (resposta === null) return;
+        
+        const numeros = resposta.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0 && n <= modulosDisponiveis.length);
+        const novosModulos = numeros.map(n => modulosDisponiveis[n-1]);
+        
+        // Perguntar sobre permissão (apenas admin pode alterar)
+        const permissaoAtual = usuario.permissao || 'leitura';
+        const niveisValidos = usuarioAtual.permissao === 'dev'
+            ? ['dev', 'master', 'admin', 'editor', 'leitura']
+            : ['admin', 'editor', 'leitura'];
+        const perguntaPermissao = prompt(
+            tf('promptNivelAtual', {nivel: permissaoAtual}) +
+            t('promptNovoNivel')
+        );
+        
+        let novaPermissao = null;
+        if (perguntaPermissao !== null && perguntaPermissao.trim()) {
+            const nivel = perguntaPermissao.trim().toLowerCase();
+            if (niveisValidos.includes(nivel)) {
+                novaPermissao = nivel;
+            } else {
+                mostrarAlerta(t('nivelInvalido'), 'erro');
+            }
+        }
+        
+        const dadosAtualizar = {
+            token,
+            id: usuario.id
+        };
+        
+        if (novoSenha.trim()) {
+            dadosAtualizar.senha = novoSenha.trim();
+        }
+        if (novosModulos.length > 0) {
+            dadosAtualizar.modulos = novosModulos;
+        }
+        if (novaPermissao) {
+            dadosAtualizar.permissao = novaPermissao;
+        }
+        
+        if (ehDev()) {
+            const empresas = await popularSelectEmpresas(usuario.empresa);
+            const nomesEmpresas = (empresas || []).map((e, i) => `${i+1}. ${e.nome}${e.id === usuario.empresa ? ' (atual)' : ''}`).join('\n');
+            const escolhaEmpresa = prompt(`${t('empresaLabel')}\n\n${nomesEmpresas}\n\nDigite o número da nova empresa, ou deixe em branco para manter:`);
+            if (escolhaEmpresa !== null && escolhaEmpresa.trim()) {
+                const indice = parseInt(escolhaEmpresa.trim()) - 1;
+                if (empresas && empresas[indice]) {
+                    dadosAtualizar.empresaId = empresas[indice].id;
+                }
+            }
+        }
+        
+        const resultado = await chamarAPI('atualizar', dadosAtualizar);
+        
+        if (resultado.erro) {
+            mostrarAlerta(t(resultado.erro), 'erro');
+            return;
+        }
+        
+        mostrarAlerta(tf('usuarioAtualizadoSucesso', {nome: usuario.nome}), 'sucesso');
+        carregarUsuarios();
+    }
+
+        // ===== EXCLUIR USUÁRIO (API) =====
+    async function excluirUsuario(id) {
+        const token = sessionStorage.getItem('flowsuite_token');
+        if (!token) {
+            mostrarAlerta(t('sessaoExpiradaLogin'), 'erro');
+            return;
+        }
+        
+        // Buscar nome do usuário para confirmar (só ele, não a lista inteira)
+        const resultadoBusca = await chamarAPI('buscarUsuario', { token, id });
+        if (resultadoBusca.erro) {
+            mostrarAlerta(t(resultadoBusca.erro), 'erro');
+            return;
+        }
+        
+        const usuario = resultadoBusca.usuario;
+        if (!usuario) {
+            mostrarAlerta(t('usuarioNaoEncontrado'), 'erro');
+            return;
+        }
+        
+        if (usuario.permissao === 'dev') {
+            mostrarAlerta(t('nao_pode_excluir_dev'), 'erro');
+            return;
+        }
+        
+        if (!confirm(tf('confirmExcluirUsuario', {nome: usuario.nome}))) return;
+        
+        const resultado = await chamarAPI('excluir', { token, id });
+        
+        if (resultado.erro) {
+            mostrarAlerta(t(resultado.erro), 'erro');
+            return;
+        }
+        
+        mostrarAlerta(tf('usuarioExcluidoSucesso', {nome: usuario.nome}), 'sucesso');
+        carregarUsuarios();
+    }
+
+    // ==========================================
+    // GESTÃO DE EMPRESAS (SÓ DEV)
+    // ==========================================
+    async function carregarEmpresas() {
+        const container = document.getElementById('listaEmpresas');
+        container.innerHTML = `<div class="vazio">${t('carregando')}</div>`;
+
+        const token = sessionStorage.getItem('flowsuite_token');
+        const resultado = await chamarAPI('listarEmpresas', { token });
+
+        if (resultado.erro) {
+            container.innerHTML = `<div class="vazio">${t(resultado.erro)}</div>`;
+            return;
+        }
+
+        const empresas = resultado.empresas || [];
+        if (empresas.length === 0) {
+            container.innerHTML = `<div class="vazio">${t('semEmpresasCadastradas')}</div>`;
+            return;
+        }
+
+        let html = `
+            <table class="tabela-usuarios">
+                <thead>
+                    <tr>
+                        <th>${t('colCodigo')}</th>
+                        <th>${t('colEmpresa')}</th>
+                        <th>CalibrationFlow</th>
+                        <th>TrainingFlow</th>
+                        <th>ReportFlow</th>
+                        <th>${t('colAcoes')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        empresas.forEach(e => {
+            html += `
+                <tr>
+                    <td><strong>${e.id}</strong></td>
+                    <td>${escapeHtml(e.nome)}</td>
+                    <td style="font-size:11px; word-break:break-all;">${escapeHtml(e.calibrationUrl) || '-'}</td>
+                    <td style="font-size:11px; word-break:break-all;">${escapeHtml(e.trainingUrl) || '-'}</td>
+                    <td style="font-size:11px; word-break:break-all;">${escapeHtml(e.reportUrl) || '-'}</td>
+                    <td>
+                        <button class="btn-editar" onclick="editarEmpresa('${e.id}')">${t('editarBtn')}</button>
+                        <button class="btn-excluir" onclick="excluirEmpresa('${e.id}')">${t('excluirBtn')}</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    async function criarEmpresa() {
+        const nome = document.getElementById('novaEmpresaNome').value.trim();
+        const codigo = document.getElementById('novaEmpresaCodigo').value.trim().toUpperCase();
+        const calibrationUrl = document.getElementById('novaEmpresaCalib').value.trim();
+        const trainingUrl = document.getElementById('novaEmpresaTrain').value.trim();
+        const reportUrl = document.getElementById('novaEmpresaReport').value.trim();
+        const driveFolderId = document.getElementById('novaEmpresaDrive').value.trim();
+
+        if (!nome) {
+            mostrarAlerta(t('digiteNomeEmpresa'), 'erro');
+            return;
+        }
+        if (!/^[A-Z]{3}$/.test(codigo)) {
+            mostrarAlerta(t('codigo_empresa_invalido'), 'erro');
+            return;
+        }
+
+        const token = sessionStorage.getItem('flowsuite_token');
+        const resultado = await chamarAPI('criarEmpresa', {
+            token,
+            empresa: { nome, codigo, calibrationUrl, trainingUrl, reportUrl, driveFolderId }
+        });
+
+        if (resultado.erro) {
+            mostrarAlerta(t(resultado.erro), 'erro');
+            return;
+        }
+
+        document.getElementById('novaEmpresaNome').value = '';
+        document.getElementById('novaEmpresaCodigo').value = '';
+        document.getElementById('novaEmpresaCalib').value = '';
+        document.getElementById('novaEmpresaTrain').value = '';
+        document.getElementById('novaEmpresaReport').value = '';
+        document.getElementById('novaEmpresaDrive').value = '';
+
+        mostrarAlerta(tf('empresaCriadaSucesso', {nome}), 'sucesso');
+        carregarEmpresas();
+        popularSelectEmpresas();
+    }
+
+    async function editarEmpresa(id) {
+        const token = sessionStorage.getItem('flowsuite_token');
+        const lista = await chamarAPI('listarEmpresas', { token });
+        if (lista.erro) {
+            mostrarAlerta(t(lista.erro), 'erro');
+            return;
+        }
+
+        const empresa = (lista.empresas || []).find(e => e.id === id);
+        if (!empresa) {
+            mostrarAlerta(t('empresa_nao_encontrada'), 'erro');
+            return;
+        }
+
+        alert(tf('promptEditarEmpresa', {nome: empresa.nome}));
+
+        const novoNome = prompt(t('promptNovoNomeEmpresa'), empresa.nome);
+        if (novoNome === null) return;
+
+        const novaCalib = prompt(t('promptNovaUrlCalib'), empresa.calibrationUrl);
+        if (novaCalib === null) return;
+
+        const novaTrain = prompt(t('promptNovaUrlTrain'), empresa.trainingUrl);
+        if (novaTrain === null) return;
+
+        const novaReport = prompt(t('promptNovaUrlReport'), empresa.reportUrl);
+        if (novaReport === null) return;
+
+        const novoDrive = prompt(t('promptNovoDriveFolder'), empresa.driveFolderId);
+        if (novoDrive === null) return;
+
+        const resultado = await chamarAPI('atualizarEmpresa', {
+            token,
+            id: empresa.id,
+            empresa: {
+                nome: novoNome.trim() || empresa.nome,
+                calibrationUrl: novaCalib.trim(),
+                trainingUrl: novaTrain.trim(),
+                reportUrl: novaReport.trim(),
+                driveFolderId: novoDrive.trim()
+            }
+        });
+
+        if (resultado.erro) {
+            mostrarAlerta(t(resultado.erro), 'erro');
+            return;
+        }
+
+        mostrarAlerta(t('empresaAtualizadaSucesso'), 'sucesso');
+        carregarEmpresas();
+        popularSelectEmpresas();
+    }
+
+    async function excluirEmpresa(id) {
+        const token = sessionStorage.getItem('flowsuite_token');
+        const lista = await chamarAPI('listarEmpresas', { token });
+        const empresa = (lista.empresas || []).find(e => e.id === id);
+        if (!empresa) {
+            mostrarAlerta(t('empresa_nao_encontrada'), 'erro');
+            return;
+        }
+
+        if (!confirm(tf('confirmExcluirEmpresa', {nome: empresa.nome}))) return;
+
+        const resultado = await chamarAPI('excluirEmpresa', { token, id });
+
+        if (resultado.erro) {
+            mostrarAlerta(t(resultado.erro), 'erro');
+            return;
+        }
+
+        mostrarAlerta(t('empresaExcluidaSucesso'), 'sucesso');
+        carregarEmpresas();
+        popularSelectEmpresas();
+    }
+
+    // ===== MOSTRAR ALERTA =====
+    function mostrarAlerta(mensagem, tipo) {
+        const alerta = document.getElementById('alertMensagem');
+        alerta.textContent = mensagem;
+        alerta.className = `alert alert-${tipo === 'sucesso' ? 'sucesso' : 'erro'}`;
+        alerta.style.display = 'block';
+        
+        setTimeout(() => {
+            alerta.style.display = 'none';
+        }, 5000);
+    }
+    // ===== LOGOUT =====
+    async function logoutAdmin() {
+        if (confirm(t('confirmSair'))) {
+            const token = sessionStorage.getItem('flowsuite_token');
+            sessionStorage.removeItem('flowsuite_token');
+            sessionStorage.removeItem('flowsuite_sessao');
+            if (token) {
+                try {
+                    await chamarAPI('logout', { token });
+                } catch (e) {
+                    // sessão local já foi limpa de qualquer forma
+                }
+            }
+            window.location.href = 'index.html';
+        }
+    }
+    
+</script>
+</body>
+</html>
