@@ -343,18 +343,12 @@
             <div style="margin-top:15px;">
                 <label data-i18n="driveFolderIdLabel">ID da Pasta no Drive</label>
                 <input type="text" id="novaEmpresaDrive" placeholder="Ex: 10-PihC2bIxJvKU5h7xFYkhqxYxtt4pr9">
+                <small style="color:#888;display:block;margin-top:4px;" data-i18n="driveFolderIdAjuda">Opcional — se deixar em branco, o sistema cria a pasta automaticamente no primeiro upload.</small>
             </div>
             <div style="margin-top:15px;">
-                <label data-i18n="calibrationUrlLabel">URL do CalibrationFlow (backend)</label>
-                <input type="text" id="novaEmpresaCalib" placeholder="https://script.google.com/macros/s/.../exec">
-            </div>
-            <div style="margin-top:15px;">
-                <label data-i18n="trainingUrlLabel">URL do TrainingFlow (backend)</label>
-                <input type="text" id="novaEmpresaTrain" placeholder="https://script.google.com/macros/s/.../exec">
-            </div>
-            <div style="margin-top:15px;">
-                <label data-i18n="reportUrlLabel">URL do ReportFlow (backend)</label>
-                <input type="text" id="novaEmpresaReport" placeholder="https://script.google.com/macros/s/.../exec">
+                <label data-i18n="emailAlertasLabel">E-mails de Alerta (calibração/treinamento)</label>
+                <input type="text" id="novaEmpresaEmailAlertas" placeholder="Ex: qualidade@empresa.com, gestor@empresa.com" data-i18n-placeholder="emailAlertasPlaceholder">
+                <small style="color:#888;display:block;margin-top:4px;" data-i18n="emailAlertasAjuda">Separe múltiplos e-mails por vírgula. Deixe em branco pra desativar os alertas dessa empresa.</small>
             </div>
             <button class="btn-add" onclick="criarEmpresa()" data-i18n="cadastrarEmpresaBtn">Cadastrar Empresa</button>
         </div>
@@ -392,8 +386,8 @@
             senhaPlaceholder: 'Digite uma senha',
             modulosPermitidos: 'Módulos Permitidos:',
             moduloReportflow: 'ReportFlow',
-            moduloEquipamentos: 'Equipamentos',
-            moduloTreinamento: 'Treinamento',
+            moduloEquipamentos: 'CalibrationFlow',
+            moduloTreinamento: 'TrainingFlow',
             nivelPermissao: 'Nível de Permissão:',
             opcaoLeitura: 'Leitura - Apenas consultar',
             opcaoEditor: 'Editor - Consultar e editar',
@@ -404,9 +398,10 @@
             nomeEmpresaLabel: 'Nome da Empresa *',
             nomeEmpresaPlaceholder: 'Ex: Empresa X',
             driveFolderIdLabel: 'ID da Pasta no Drive',
-            calibrationUrlLabel: 'URL do CalibrationFlow (backend)',
-            trainingUrlLabel: 'URL do TrainingFlow (backend)',
-            reportUrlLabel: 'URL do ReportFlow (backend)',
+            driveFolderIdAjuda: 'Opcional — se deixar em branco, o sistema cria a pasta automaticamente no primeiro upload.',
+            emailAlertasLabel: 'E-mails de Alerta (calibração/treinamento)',
+            emailAlertasPlaceholder: 'Ex: qualidade@empresa.com, gestor@empresa.com',
+            emailAlertasAjuda: 'Separe múltiplos e-mails por vírgula. Deixe em branco pra desativar os alertas dessa empresa.',
             cadastrarEmpresaBtn: 'Cadastrar Empresa',
             empresasCadastradas: 'Empresas Cadastradas',
             colEmpresa: 'Empresa',
@@ -424,9 +419,7 @@
             empresaExcluidaSucesso: 'Empresa excluída com sucesso!',
             promptEditarEmpresa: 'Editando empresa "{nome}"\n\nDeixe em branco para manter o valor atual.',
             promptNovoNomeEmpresa: 'Nome da empresa:',
-            promptNovaUrlCalib: 'URL do CalibrationFlow:',
-            promptNovaUrlTrain: 'URL do TrainingFlow:',
-            promptNovaUrlReport: 'URL do ReportFlow:',
+            promptNovoEmailAlertas: 'E-mails de alerta (separados por vírgula):',
             promptNovoDriveFolder: 'ID da pasta no Drive:',
             selecioneEmpresa: 'Selecione a empresa deste usuário.',
             sem_permissao_empresa: 'Você não tem permissão sobre usuários de outra empresa',
@@ -498,8 +491,8 @@
             senhaPlaceholder: 'Enter a password',
             modulosPermitidos: 'Allowed Modules:',
             moduloReportflow: 'ReportFlow',
-            moduloEquipamentos: 'Equipment',
-            moduloTreinamento: 'Training',
+            moduloEquipamentos: 'CalibrationFlow',
+            moduloTreinamento: 'TrainingFlow',
             nivelPermissao: 'Permission Level:',
             opcaoLeitura: 'Read only - View only',
             opcaoEditor: 'Editor - View and edit',
@@ -510,9 +503,10 @@
             nomeEmpresaLabel: 'Company Name *',
             nomeEmpresaPlaceholder: 'E.g.: Company X',
             driveFolderIdLabel: 'Drive Folder ID',
-            calibrationUrlLabel: 'CalibrationFlow URL (backend)',
-            trainingUrlLabel: 'TrainingFlow URL (backend)',
-            reportUrlLabel: 'ReportFlow URL (backend)',
+            driveFolderIdAjuda: 'Optional — if left blank, the system creates the folder automatically on first upload.',
+            emailAlertasLabel: 'Alert Emails (calibration/training)',
+            emailAlertasPlaceholder: 'E.g.: quality@company.com, manager@company.com',
+            emailAlertasAjuda: 'Separate multiple emails with a comma. Leave blank to disable alerts for this company.',
             cadastrarEmpresaBtn: 'Add Company',
             empresasCadastradas: 'Registered Companies',
             colEmpresa: 'Company',
@@ -530,9 +524,7 @@
             empresaExcluidaSucesso: 'Company deleted successfully!',
             promptEditarEmpresa: 'Editing company "{nome}"\n\nLeave blank to keep the current value.',
             promptNovoNomeEmpresa: 'Company name:',
-            promptNovaUrlCalib: 'CalibrationFlow URL:',
-            promptNovaUrlTrain: 'TrainingFlow URL:',
-            promptNovaUrlReport: 'ReportFlow URL:',
+            promptNovoEmailAlertas: 'Alert emails (comma-separated):',
             promptNovoDriveFolder: 'Drive folder ID:',
             selecioneEmpresa: 'Select this user\'s company.',
             sem_permissao_empresa: 'You do not have permission over users from another company',
@@ -604,8 +596,8 @@
             senhaPlaceholder: 'Ingrese una contraseña',
             modulosPermitidos: 'Módulos Permitidos:',
             moduloReportflow: 'ReportFlow',
-            moduloEquipamentos: 'Equipos',
-            moduloTreinamento: 'Capacitación',
+            moduloEquipamentos: 'CalibrationFlow',
+            moduloTreinamento: 'TrainingFlow',
             nivelPermissao: 'Nivel de Permiso:',
             opcaoLeitura: 'Lectura - Solo consultar',
             opcaoEditor: 'Editor - Consultar y editar',
@@ -616,9 +608,10 @@
             nomeEmpresaLabel: 'Nombre de la Empresa *',
             nomeEmpresaPlaceholder: 'Ej: Empresa X',
             driveFolderIdLabel: 'ID de la Carpeta en Drive',
-            calibrationUrlLabel: 'URL de CalibrationFlow (backend)',
-            trainingUrlLabel: 'URL de TrainingFlow (backend)',
-            reportUrlLabel: 'URL de ReportFlow (backend)',
+            driveFolderIdAjuda: 'Opcional — si se deja en blanco, el sistema crea la carpeta automáticamente en la primera carga.',
+            emailAlertasLabel: 'Correos de Alerta (calibración/entrenamiento)',
+            emailAlertasPlaceholder: 'Ej: calidad@empresa.com, gerente@empresa.com',
+            emailAlertasAjuda: 'Separe varios correos con coma. Deje en blanco para desactivar las alertas de esta empresa.',
             cadastrarEmpresaBtn: 'Registrar Empresa',
             empresasCadastradas: 'Empresas Registradas',
             colEmpresa: 'Empresa',
@@ -636,9 +629,7 @@
             empresaExcluidaSucesso: '¡Empresa eliminada con éxito!',
             promptEditarEmpresa: 'Editando empresa "{nome}"\n\nDeje en blanco para mantener el valor actual.',
             promptNovoNomeEmpresa: 'Nombre de la empresa:',
-            promptNovaUrlCalib: 'URL de CalibrationFlow:',
-            promptNovaUrlTrain: 'URL de TrainingFlow:',
-            promptNovaUrlReport: 'URL de ReportFlow:',
+            promptNovoEmailAlertas: 'Correos de alerta (separados por coma):',
             promptNovoDriveFolder: 'ID de la carpeta en Drive:',
             selecioneEmpresa: 'Seleccione la empresa de este usuario.',
             sem_permissao_empresa: 'No tiene permiso sobre usuarios de otra empresa',
@@ -1147,9 +1138,7 @@
                     <tr>
                         <th>${t('colCodigo')}</th>
                         <th>${t('colEmpresa')}</th>
-                        <th>CalibrationFlow</th>
-                        <th>TrainingFlow</th>
-                        <th>ReportFlow</th>
+                        <th>${t('emailAlertasLabel')}</th>
                         <th>${t('colAcoes')}</th>
                     </tr>
                 </thead>
@@ -1159,11 +1148,9 @@
         empresas.forEach(e => {
             html += `
                 <tr>
-                    <td><strong>${e.id}</strong></td>
+                    <td><strong>${escapeHtml(e.codigo)}</strong></td>
                     <td>${escapeHtml(e.nome)}</td>
-                    <td style="font-size:11px; word-break:break-all;">${escapeHtml(e.calibrationUrl) || '-'}</td>
-                    <td style="font-size:11px; word-break:break-all;">${escapeHtml(e.trainingUrl) || '-'}</td>
-                    <td style="font-size:11px; word-break:break-all;">${escapeHtml(e.reportUrl) || '-'}</td>
+                    <td style="font-size:12px;">${escapeHtml(e.email_alertas) || '-'}</td>
                     <td>
                         <button class="btn-editar" onclick="editarEmpresa('${e.id}')">${t('editarBtn')}</button>
                         <button class="btn-excluir" onclick="excluirEmpresa('${e.id}')">${t('excluirBtn')}</button>
@@ -1179,9 +1166,7 @@
     async function criarEmpresa() {
         const nome = document.getElementById('novaEmpresaNome').value.trim();
         const codigo = document.getElementById('novaEmpresaCodigo').value.trim().toUpperCase();
-        const calibrationUrl = document.getElementById('novaEmpresaCalib').value.trim();
-        const trainingUrl = document.getElementById('novaEmpresaTrain').value.trim();
-        const reportUrl = document.getElementById('novaEmpresaReport').value.trim();
+        const emailAlertas = document.getElementById('novaEmpresaEmailAlertas').value.trim();
         const driveFolderId = document.getElementById('novaEmpresaDrive').value.trim();
 
         if (!nome) {
@@ -1196,7 +1181,7 @@
         const token = sessionStorage.getItem('flowsuite_token');
         const resultado = await chamarAPI('criarEmpresa', {
             token,
-            empresa: { nome, codigo, calibrationUrl, trainingUrl, reportUrl, driveFolderId }
+            empresa: { nome, codigo, emailAlertas, driveFolderId }
         });
 
         if (resultado.erro) {
@@ -1206,9 +1191,7 @@
 
         document.getElementById('novaEmpresaNome').value = '';
         document.getElementById('novaEmpresaCodigo').value = '';
-        document.getElementById('novaEmpresaCalib').value = '';
-        document.getElementById('novaEmpresaTrain').value = '';
-        document.getElementById('novaEmpresaReport').value = '';
+        document.getElementById('novaEmpresaEmailAlertas').value = '';
         document.getElementById('novaEmpresaDrive').value = '';
 
         mostrarAlerta(tf('empresaCriadaSucesso', {nome}), 'sucesso');
@@ -1235,16 +1218,10 @@
         const novoNome = prompt(t('promptNovoNomeEmpresa'), empresa.nome);
         if (novoNome === null) return;
 
-        const novaCalib = prompt(t('promptNovaUrlCalib'), empresa.calibrationUrl);
-        if (novaCalib === null) return;
+        const novoEmailAlertas = prompt(t('promptNovoEmailAlertas'), empresa.email_alertas || '');
+        if (novoEmailAlertas === null) return;
 
-        const novaTrain = prompt(t('promptNovaUrlTrain'), empresa.trainingUrl);
-        if (novaTrain === null) return;
-
-        const novaReport = prompt(t('promptNovaUrlReport'), empresa.reportUrl);
-        if (novaReport === null) return;
-
-        const novoDrive = prompt(t('promptNovoDriveFolder'), empresa.driveFolderId);
+        const novoDrive = prompt(t('promptNovoDriveFolder'), empresa.drive_folder_id || '');
         if (novoDrive === null) return;
 
         const resultado = await chamarAPI('atualizarEmpresa', {
@@ -1252,9 +1229,7 @@
             id: empresa.id,
             empresa: {
                 nome: novoNome.trim() || empresa.nome,
-                calibrationUrl: novaCalib.trim(),
-                trainingUrl: novaTrain.trim(),
-                reportUrl: novaReport.trim(),
+                emailAlertas: novoEmailAlertas.trim(),
                 driveFolderId: novoDrive.trim()
             }
         });
