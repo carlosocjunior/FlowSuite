@@ -408,6 +408,7 @@ const I18N = {
         acessarModulo: 'Acessar o módulo →',
         loginBtn: 'Login',
         verComoPlaceholder: 'Ver como...',
+        todasEmpresasOpcao: '🌐 Todas as empresas',
         sairBtn: 'Sair',
         loginTitulo: 'Entre com seu usuário e senha',
         acessoModuloSolicitado: 'Acesso ao módulo solicitado',
@@ -445,6 +446,7 @@ const I18N = {
         acessarModulo: 'Open module →',
         loginBtn: 'Login',
         verComoPlaceholder: 'View as...',
+        todasEmpresasOpcao: '🌐 All companies',
         sairBtn: 'Logout',
         loginTitulo: 'Sign in with your username and password',
         acessoModuloSolicitado: 'Access to requested module',
@@ -482,6 +484,7 @@ const I18N = {
         acessarModulo: 'Acceder al módulo →',
         loginBtn: 'Iniciar sesión',
         verComoPlaceholder: 'Ver como...',
+        todasEmpresasOpcao: '🌐 Todas as empresas',
         sairBtn: 'Salir',
         loginTitulo: 'Ingrese su usuario y contraseña',
         acessoModuloSolicitado: 'Acceso al módulo solicitado',
@@ -766,6 +769,7 @@ async function popularSeletorEmpresaDev() {
         if (!resultado.empresas) return;
         const atual = getEmpresaVisualizando();
         select.innerHTML = `<option value="">${t('verComoPlaceholder')}</option>` +
+            `<option value="todas" ${atual === 'todas' ? 'selected' : ''}>${t('todasEmpresasOpcao')}</option>` +
             resultado.empresas.map(e => `<option value="${e.id}" ${e.id === atual ? 'selected' : ''}>${escapeHtml(e.nome)}</option>`).join('');
     } catch (e) {
         console.error('Erro ao carregar empresas:', e);
