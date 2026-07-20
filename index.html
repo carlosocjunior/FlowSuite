@@ -28,7 +28,7 @@
 
         .container {
             max-width: 1100px;
-            margin: 0 auto;
+            margin: 0;
             position: relative;
             z-index: 1;
         }
@@ -919,7 +919,7 @@ function aplicarProtecaoCardsHorizontais() {
             if (e.target.closest('.acessar-modulo')) return;
 
             if (sessaoAtual && temAcesso(modulo)) {
-                window.open(abrirModuloComToken(href), '_blank');
+                window.location.href = abrirModuloComToken(href);
                 return;
             }
             if (sessaoAtual && !temAcesso(modulo)) {
@@ -929,7 +929,7 @@ function aplicarProtecaoCardsHorizontais() {
             const nomeModulo = modulo.charAt(0).toUpperCase() + modulo.slice(1);
             mostrarModalLogin(nomeModulo, async function() {
                 if (temAcesso(modulo)) {
-                    window.open(abrirModuloComToken(href), '_blank');
+                    window.location.href = abrirModuloComToken(href);
                 } else {
                     alert(tf('semPermissaoModulo', {modulo: modulo}));
                 }
@@ -939,14 +939,14 @@ function aplicarProtecaoCardsHorizontais() {
         link.addEventListener('click', function(e) {
             e.stopPropagation();
             if (sessaoAtual && temAcesso(modulo)) {
-                window.open(abrirModuloComToken(href), '_blank');
+                window.location.href = abrirModuloComToken(href);
             } else if (sessaoAtual && !temAcesso(modulo)) {
                 alert(tf('semPermissaoModulo', {modulo: modulo}));
             } else {
                 const nomeModulo = modulo.charAt(0).toUpperCase() + modulo.slice(1);
                 mostrarModalLogin(nomeModulo, async function() {
                     if (temAcesso(modulo)) {
-                        window.open(abrirModuloComToken(href), '_blank');
+                        window.location.href = abrirModuloComToken(href);
                     } else {
                         alert(tf('semPermissaoModulo', {modulo: modulo}));
                     }
