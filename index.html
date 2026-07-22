@@ -749,14 +749,14 @@ function getUsuarioLogado() {
 const EMPRESA_VIEW_KEY = 'flowsuite_empresa_visualizando';
 
 function getEmpresaVisualizando() {
-    return sessionStorage.getItem(EMPRESA_VIEW_KEY) || '';
+    return sessionStorage.getItem(EMPRESA_VIEW_KEY) || 'todas';
 }
 
 function mudarEmpresaVisualizando(codigo) {
     if (codigo) {
         sessionStorage.setItem(EMPRESA_VIEW_KEY, codigo);
     } else {
-        sessionStorage.removeItem(EMPRESA_VIEW_KEY);
+        sessionStorage.setItem(EMPRESA_VIEW_KEY, 'todas');
     }
 }
 
@@ -768,8 +768,7 @@ async function popularSeletorEmpresaDev() {
         const resultado = await chamarAPI('listarEmpresas', {});
         if (!resultado.empresas) return;
         const atual = getEmpresaVisualizando();
-        select.innerHTML = `<option value="">${t('verComoPlaceholder')}</option>` +
-            `<option value="todas" ${atual === 'todas' ? 'selected' : ''}>${t('todasEmpresasOpcao')}</option>` +
+        select.innerHTML = `<option value="todas" ${atual === 'todas' ? 'selected' : ''}>${t('todasEmpresasOpcao')}</option>` +
             resultado.empresas.map(e => `<option value="${e.id}" ${e.id === atual ? 'selected' : ''}>${escapeHtml(e.nome)}</option>`).join('');
     } catch (e) {
         console.error('Erro ao carregar empresas:', e);

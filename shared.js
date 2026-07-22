@@ -40,7 +40,7 @@ function getTokenDaURL() {
 
 function getEmpresaVisualizandoDaURL() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('fs_empresa') || '';
+    return params.get('fs_empresa') || 'todas';
 }
 
 // ==========================================
