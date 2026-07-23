@@ -125,7 +125,7 @@
             background-size: cover;
             background-position: right center;
             background-repeat: no-repeat;
-            opacity: 0.18;
+            opacity: 0.08;
             z-index: 0;
             pointer-events: none;
         }
@@ -140,18 +140,18 @@
         }
 
         .card-horizontal + .card-horizontal {
-            margin-top: 20px;
+            margin-top: 14px;
         }
 
         .card-horizontal {
             display: flex;
             align-items: center;
             border-radius: 22px;
-            padding: 14px 30px;
+            padding: 10px 30px;
             box-shadow: 0 12px 28px rgba(0,0,0,0.20);
             width: 75%;
             margin: 0;
-            min-height: 100px;
+            min-height: 90px;
             gap: 28px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: 3px solid rgba(255,255,255,0.15);
@@ -333,11 +333,11 @@
         <div class="header">
             <div class="logo-block">
                 <img src="logo-synvora.png" alt="Synvora Labs" style="width:130px; height:auto; margin-bottom:4px;">
-                <div class="logo-bot">MANAGEMENT PLATFORM</div>
+                <div class="logo-bot">SMARTOPERATIONSPLATFORM</div>
             </div>
             <div>
                 <h1>FlowSuite</h1>
-                <div class="subtitulo" data-i18n="subtitulo">Painel de Ferramentas</div>
+                <div class="subtitulo" data-i18n="subtitulo">Management Platform</div>
             </div>
         </div>
         <div class="secao-cards-wrapper">
@@ -400,7 +400,7 @@ let idiomaAtual = localStorage.getItem('flowsuite_idioma') || 'pt';
 
 const I18N = {
     pt: {
-        subtitulo: 'Painel de Ferramentas',
+        subtitulo: 'Management Platform',
         footer: 'FlowSuite - Sistema Integrado de Ferramentas',
         reportflowDesc: 'Geração de relatórios técnicos detalhados com fotos, descrições e etapas de reparo, agilizando a documentação de serviços.',
         calibrationflowDesc: 'Calibragem precisa e monitoramento de equipamentos essenciais para garantir a confiabilidade e conformidade com padrões estabelecidos.',
@@ -438,7 +438,7 @@ const I18N = {
         acao_invalida: 'Ação inválida',
     },
     en: {
-        subtitulo: 'Tools Dashboard',
+        subtitulo: 'Management Platform',
         footer: 'FlowSuite - Integrated Tools System',
         reportflowDesc: 'Generation of detailed technical reports with photos, descriptions and repair steps, speeding up service documentation.',
         calibrationflowDesc: 'Precise calibration and monitoring of essential equipment to ensure reliability and compliance with established standards.',
@@ -476,7 +476,7 @@ const I18N = {
         acao_invalida: 'Invalid action',
     },
     es: {
-        subtitulo: 'Panel de Herramientas',
+        subtitulo: 'Management Platform',
         footer: 'FlowSuite - Sistema Integrado de Herramientas',
         reportflowDesc: 'Generación de informes técnicos detallados con fotos, descripciones y etapas de reparación, agilizando la documentación de servicios.',
         calibrationflowDesc: 'Calibración precisa y monitoreo de equipos esenciales para garantizar la confiabilidad y el cumplimiento de los estándares establecidos.',
