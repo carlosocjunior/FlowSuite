@@ -170,3 +170,167 @@ async function garantirChartJS() {
         await carregarScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
     }
 }
+
+// ==========================================
+// CHATBOT DE DÚVIDAS — widget flutuante que aparece em QUALQUER
+// ferramenta que carregue este shared.js (FlowSuite, ReportFlow,
+// CalibrationFlow, TrainingFlow, admin). Manda as perguntas pro Worker
+// (ação 'chatDuvida'), que fala com a API da Anthropic usando uma
+// chave guardada como secret (nunca exposta aqui no front).
+// ==========================================
+const CHAT_FLOWSUITE_API_URL = 'https://flowsuite-plus-api.flowsuite-plus.workers.dev';
+
+// Histórico da conversa fica só em memória (some ao recarregar a
+// página) — de propósito, pra não guardar conteúdo de chat em
+// sessionStorage/localStorage sem necessidade.
+let _chatFlowSuiteHistorico = [];
+let _chatFlowSuiteAberto = false;
+let _chatFlowSuiteCarregando = false;
+
+function _chatObterToken() {
+    const tokenSessao = sessionStorage.getItem('flowsuite_token');
+    if (tokenSessao) return tokenSessao;
+    if (typeof getTokenDaURL === 'function') {
+        const tokenUrl = getTokenDaURL();
+        if (tokenUrl) return tokenUrl;
+    }
+    return null;
+}
+
+function _chatModuloAtual() {
+    if (typeof MODULO_ATUAL !== 'undefined' && MODULO_ATUAL) return MODULO_ATUAL;
+    return 'hub';
+}
+
+function _chatInjetarWidget() {
+    if (document.getElementById('chatFlowSuiteBotao')) return; // já injetado
+
+    const botao = document.createElement('button');
+    botao.id = 'chatFlowSuiteBotao';
+    botao.title = 'Dúvidas sobre o FlowSuite';
+    botao.innerHTML = '💬';
+    botao.style.cssText = `
+        position: fixed; bottom: 22px; right: 22px; width: 56px; height: 56px;
+        border-radius: 50%; background: #007bff; color: white; border: none;
+        font-size: 24px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); cursor: pointer;
+        z-index: 99998; display: flex; align-items: center; justify-content: center;
+        transition: transform 0.2s;
+    `;
+    botao.onmouseenter = () => botao.style.transform = 'scale(1.08)';
+    botao.onmouseleave = () => botao.style.transform = 'scale(1)';
+    botao.addEventListener('click', _chatToggleJanela);
+
+    const painel = document.createElement('div');
+    painel.id = 'chatFlowSuitePainel';
+    painel.style.cssText = `
+        position: fixed; bottom: 90px; right: 22px; width: 340px; max-width: calc(100vw - 44px);
+        height: 460px; max-height: calc(100vh - 120px); background: white; border-radius: 14px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.30); display: none; flex-direction: column;
+        overflow: hidden; z-index: 99999; font-family: 'Poppins', Arial, sans-serif;
+    `;
+    painel.innerHTML = `
+        <div style="background:#007bff;color:white;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:14px;">Dúvidas sobre o FlowSuite</strong>
+            <span id="chatFlowSuiteFechar" style="cursor:pointer;font-size:18px;line-height:1;">×</span>
+        </div>
+        <div id="chatFlowSuiteMensagens" style="flex:1;overflow-y:auto;padding:14px;background:#f7f8fa;display:flex;flex-direction:column;gap:10px;font-size:13px;"></div>
+        <div style="padding:10px;border-top:1px solid #eee;display:flex;gap:8px;">
+            <input id="chatFlowSuiteInput" type="text" placeholder="Digite sua dúvida..." style="flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:20px;font-size:13px;outline:none;">
+            <button id="chatFlowSuiteEnviar" style="background:#007bff;color:white;border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;flex-shrink:0;">➤</button>
+        </div>
+    `;
+
+    document.body.appendChild(botao);
+    document.body.appendChild(painel);
+
+    document.getElementById('chatFlowSuiteFechar').addEventListener('click', _chatToggleJanela);
+    document.getElementById('chatFlowSuiteEnviar').addEventListener('click', _chatEnviarPergunta);
+    document.getElementById('chatFlowSuiteInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') _chatEnviarPergunta();
+    });
+}
+
+function _chatToggleJanela() {
+    _chatFlowSuiteAberto = !_chatFlowSuiteAberto;
+    const painel = document.getElementById('chatFlowSuitePainel');
+    if (!painel) return;
+    painel.style.display = _chatFlowSuiteAberto ? 'flex' : 'none';
+
+    if (_chatFlowSuiteAberto && _chatFlowSuiteHistorico.length === 0) {
+        _chatAdicionarMensagemTela('assistant', 'Oi! Sou o assistente do FlowSuite. Pode perguntar como usar qualquer parte do sistema (ReportFlow, CalibrationFlow, TrainingFlow ou o painel principal).');
+    }
+    if (_chatFlowSuiteAberto) {
+        const input = document.getElementById('chatFlowSuiteInput');
+        if (input) input.focus();
+    }
+}
+
+function _chatAdicionarMensagemTela(role, texto) {
+    const container = document.getElementById('chatFlowSuiteMensagens');
+    if (!container) return;
+    const bolha = document.createElement('div');
+    const ehUsuario = role === 'user';
+    bolha.style.cssText = `
+        align-self: ${ehUsuario ? 'flex-end' : 'flex-start'};
+        background: ${ehUsuario ? '#007bff' : '#e9ecef'};
+        color: ${ehUsuario ? 'white' : '#333'};
+        padding: 8px 12px; border-radius: 14px; max-width: 85%; white-space: pre-wrap; line-height: 1.4;
+    `;
+    bolha.textContent = texto;
+    container.appendChild(bolha);
+    container.scrollTop = container.scrollHeight;
+    return bolha;
+}
+
+async function _chatEnviarPergunta() {
+    if (_chatFlowSuiteCarregando) return;
+
+    const input = document.getElementById('chatFlowSuiteInput');
+    const pergunta = input ? input.value.trim() : '';
+    if (!pergunta) return;
+
+    const token = _chatObterToken();
+    if (!token) {
+        _chatAdicionarMensagemTela('assistant', 'Você precisa estar logado no FlowSuite pra usar o assistente. Faça login e tente de novo.');
+        return;
+    }
+
+    input.value = '';
+    _chatAdicionarMensagemTela('user', pergunta);
+    const bolhaCarregando = _chatAdicionarMensagemTela('assistant', '...');
+    _chatFlowSuiteCarregando = true;
+
+    try {
+        const resposta = await fetch(CHAT_FLOWSUITE_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                acao: 'chatDuvida',
+                token: token,
+                pergunta: pergunta,
+                ferramenta: _chatModuloAtual(),
+                historico: _chatFlowSuiteHistorico
+            })
+        });
+        const resultado = await resposta.json();
+
+        if (resultado.sucesso) {
+            bolhaCarregando.textContent = resultado.resposta;
+            _chatFlowSuiteHistorico.push({ role: 'user', content: pergunta });
+            _chatFlowSuiteHistorico.push({ role: 'assistant', content: resultado.resposta });
+        } else {
+            bolhaCarregando.textContent = 'Não consegui responder agora. Tenta de novo em instantes.';
+        }
+    } catch (e) {
+        bolhaCarregando.textContent = 'Não consegui me conectar. Verifique sua internet e tente de novo.';
+    } finally {
+        _chatFlowSuiteCarregando = false;
+    }
+}
+
+// Injeta o widget assim que a página (e o DOM) estiver pronta.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _chatInjetarWidget);
+} else {
+    _chatInjetarWidget();
+}
