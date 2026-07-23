@@ -321,6 +321,7 @@
             <select id="permissaoSelect" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin-top:5px;">
                 <option value="leitura" data-i18n="opcaoLeitura">Leitura - Apenas consultar</option>
                 <option value="editor" data-i18n="opcaoEditor">Editor - Consultar e editar</option>
+                <option value="supervisor" data-i18n="opcaoSupervisor">Supervisor - Editor + acesso ao Dashboard</option>
                 <option value="admin" data-i18n="opcaoAdmin">Admin - Controle total</option>
                 <option value="dev" id="opcaoDev" class="oculto" data-i18n="opcaoDev">Dev - Gerencia empresas</option>
             </select>
@@ -398,6 +399,7 @@
             opcaoLeitura: 'Leitura - Apenas consultar',
             opcaoEditor: 'Editor - Consultar e editar',
             opcaoAdmin: 'Admin - Controle total',
+            opcaoSupervisor: 'Supervisor - Editor + acesso ao Dashboard',
             opcaoDev: 'Dev - Gerencia empresas',
             empresaLabel: 'Empresa:',
             cadastrarEmpresa: 'Cadastrar Empresa',
@@ -446,6 +448,7 @@
             nenhum: 'Nenhum',
             administrador: 'Administrador',
             permissaoAdmin: 'Admin',
+            permissaoSupervisor: 'Supervisor',
             permissaoEditor: 'Editor',
             permissaoLeitura: 'Leitura',
             nenhumUsuarioCadastrado: 'Nenhum usuário cadastrado.',
@@ -503,6 +506,7 @@
             opcaoLeitura: 'Read only - View only',
             opcaoEditor: 'Editor - View and edit',
             opcaoAdmin: 'Admin - Full control',
+            opcaoSupervisor: 'Supervisor - Editor + Dashboard access',
             opcaoDev: 'Dev - Manages companies',
             empresaLabel: 'Company:',
             cadastrarEmpresa: 'Add Company',
@@ -551,6 +555,7 @@
             nenhum: 'None',
             administrador: 'Administrator',
             permissaoAdmin: 'Admin',
+            permissaoSupervisor: 'Supervisor',
             permissaoEditor: 'Editor',
             permissaoLeitura: 'Read only',
             nenhumUsuarioCadastrado: 'No registered users.',
@@ -608,6 +613,7 @@
             opcaoLeitura: 'Lectura - Solo consultar',
             opcaoEditor: 'Editor - Consultar y editar',
             opcaoAdmin: 'Admin - Control total',
+            opcaoSupervisor: 'Supervisor - Editor + acceso al Dashboard',
             opcaoDev: 'Dev - Gestiona empresas',
             empresaLabel: 'Empresa:',
             cadastrarEmpresa: 'Registrar Empresa',
@@ -656,6 +662,7 @@
             nenhum: 'Ninguno',
             administrador: 'Administrador',
             permissaoAdmin: 'Admin',
+            permissaoSupervisor: 'Supervisor',
             permissaoEditor: 'Editor',
             permissaoLeitura: 'Lectura',
             nenhumUsuarioCadastrado: 'No hay usuarios registrados.',
@@ -882,6 +889,7 @@
             const permissaoLabel = u.permissao === 'dev' ? 'Dev' :
                                   u.permissao === 'master' ? 'Master' :
                                   u.permissao === 'admin' ? t('permissaoAdmin') :
+                                  u.permissao === 'supervisor' ? t('permissaoSupervisor') :
                                   u.permissao === 'editor' ? t('permissaoEditor') : t('permissaoLeitura');
             
             // dev só mexe em dev; nem dev nem master (exceto o próprio dev) mexem em master
@@ -1023,8 +1031,8 @@
         // Perguntar sobre permissão (apenas admin pode alterar)
         const permissaoAtual = usuario.permissao || 'leitura';
         const niveisValidos = usuarioAtual.permissao === 'dev'
-            ? ['dev', 'master', 'admin', 'editor', 'leitura']
-            : ['admin', 'editor', 'leitura'];
+            ? ['dev', 'master', 'admin', 'supervisor', 'editor', 'leitura']
+            : ['admin', 'supervisor', 'editor', 'leitura'];
         const perguntaPermissao = prompt(
             tf('promptNivelAtual', {nivel: permissaoAtual}) +
             t('promptNovoNivel')

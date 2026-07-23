@@ -55,7 +55,7 @@ function podeEditar(nivelExplicito) {
     const nivel = nivelExplicito !== undefined
         ? nivelExplicito
         : (typeof permissaoUsuario !== 'undefined' ? permissaoUsuario : null);
-    return nivel === 'admin' || nivel === 'editor' || nivel === 'dev' || nivel === 'master';
+    return nivel === 'admin' || nivel === 'editor' || nivel === 'dev' || nivel === 'master' || nivel === 'supervisor';
 }
 
 function podeExcluir(nivelExplicito) {
@@ -63,6 +63,16 @@ function podeExcluir(nivelExplicito) {
         ? nivelExplicito
         : (typeof permissaoUsuario !== 'undefined' ? permissaoUsuario : null);
     return nivel === 'admin' || nivel === 'dev' || nivel === 'master';
+}
+
+// ==========================================
+// NÍVEL DÁ ACESSO A DASHBOARD? (supervisor, admin, master, dev)
+// ==========================================
+function podeVerDashboard(nivelExplicito) {
+    const nivel = nivelExplicito !== undefined
+        ? nivelExplicito
+        : (typeof permissaoUsuario !== 'undefined' ? permissaoUsuario : null);
+    return nivel === 'supervisor' || nivel === 'admin' || nivel === 'dev' || nivel === 'master';
 }
 
 // ==========================================
